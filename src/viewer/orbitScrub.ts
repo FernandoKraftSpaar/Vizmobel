@@ -30,13 +30,19 @@ export type OrbitScrubConfig = {
   end: string
 }
 
+/*
+ * O percurso da camera e curto de proposito. A versao anterior comecava a 4,4m
+ * e o objeto entrava pequeno: a rolagem tinha que aproximar antes de o visitante
+ * conseguir ver o movel. Agora ele ja nasce enquadrado e a rolagem so gira e
+ * aproxima o suficiente para dar vida.
+ */
 export const orbitScrubDefaults = {
-  fromTheta: -22,
-  toTheta: 38,
-  fromPhi: 86,
-  toPhi: 72,
-  fromRadius: 4.4,
-  toRadius: 3.2,
+  fromTheta: -20,
+  toTheta: 34,
+  fromPhi: 84,
+  toPhi: 74,
+  fromRadius: 3.5,
+  toRadius: 3,
   start: 'top bottom',
   end: 'bottom top',
 } as const satisfies Omit<OrbitScrubConfig, 'viewer' | 'trigger'>

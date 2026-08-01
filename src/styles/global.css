@@ -279,88 +279,48 @@ img {
   text-transform: uppercase;
 }
 
-/* ------------------------------------------------------------- tilt card */
+/* ----------------------------------------------------------------- palco */
 
+/* Sem padding vertical: a secao e uma tela inteira e o conteudo se centraliza
+   nela. Qualquer padding aqui empurraria o objeto para fora do centro assim
+   que a secao fosse fixada. */
 .section--stage {
   min-height: 100svh;
   display: grid;
   place-items: center;
+  padding-block: 0;
   overflow: hidden;
 }
 
 .stage {
   display: grid;
   justify-items: center;
-  gap: 34px;
+  width: 100%;
+  padding-inline: var(--gutter);
 }
 
+/*
+ * A legenda esta FORA do fluxo, e isso e a correcao central.
+ *
+ * Enquanto ela era um item da grade, o navegador centralizava o conjunto
+ * cartao+legenda -- e o objeto, sozinho, ficava sempre acima do centro da tela.
+ * Quanto maior o cartao, mais visivel o desvio. Ancorada ao rodape da secao,
+ * ela deixa o objeto ocupar o centro optico de verdade.
+ *
+ * `translate` e propriedade autonoma: o GSAP anima `transform` neste mesmo
+ * elemento na entrada, e as duas coisas nao se apagam.
+ */
 .stage__caption {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(24px, 5vh, 52px);
+  translate: -50% 0;
+  width: min(34ch, 88vw);
   text-align: center;
-  max-width: 34ch;
-  font-size: clamp(19px, 2.4vw, 26px);
+  font-size: clamp(18px, 2.2vw, 25px);
   font-weight: 600;
   letter-spacing: -0.02em;
   text-wrap: balance;
-}
-
-.tiltcard {
-  position: relative;
-  width: min(440px, 74vw);
-  aspect-ratio: 4 / 5;
-  border-radius: var(--radius-lg);
-  background: var(--grad);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  will-change: transform;
-}
-
-.tiltcard__glow {
-  position: absolute;
-  width: 74%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(234, 179, 8, 0.36) 0%,
-    rgba(234, 179, 8, 0) 68%
-  );
-  will-change: transform;
-}
-
-.tiltcard__shape {
-  position: relative;
-  width: 52%;
-  aspect-ratio: 1;
-  border-radius: 22px;
-  border: 1.5px solid rgba(255, 255, 255, 0.22);
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.16),
-    rgba(255, 255, 255, 0.03)
-  );
-  backdrop-filter: blur(2px);
-  will-change: transform;
-}
-
-.tiltcard__meta {
-  position: absolute;
-  left: 22px;
-  bottom: 20px;
-  display: grid;
-  gap: 2px;
-  color: #fff;
-  will-change: transform;
-}
-
-.tiltcard__meta strong {
-  font-size: 16px;
-}
-
-.tiltcard__meta span {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.62);
 }
 
 /* ------------------------------------------------------------- questions */

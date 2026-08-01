@@ -24,10 +24,7 @@ export type Finish = {
    * modelador nomeou no Blender. Errar aqui falha em silencio.
    */
   material: string
-  /**
-   * Mapa de cor base. Nulo usa `color` como cor lisa -- e o que permite a v1
-   * funcionar com o .glb sozinho, antes de qualquer JPG entrar no repositorio.
-   */
+  /** Mapa de cor base. Nulo usa `color` como cor lisa. */
   textureUrl: string | null
   /** sRGB de 0 a 1. Serve de amostra na interface e de cor lisa sem textura. */
   color: readonly [number, number, number]
@@ -58,6 +55,11 @@ export type ModelConfig = {
   cameraTarget: string
   minCameraOrbit: string
   maxCameraOrbit: string
+  /**
+   * Vazio enquanto nao houver catalogo real. A interface de acabamentos so
+   * aparece quando isto chegar preenchido -- um seletor com opcoes inventadas
+   * promete uma configuracao que o produto ainda nao entrega.
+   */
   groups: FinishGroup[]
 }
 
@@ -73,97 +75,15 @@ export const poltrona: ModelConfig = {
   exposure: 1.15,
   shadowIntensity: 1.2,
   shadowSoftness: 0.95,
-  fieldOfView: '24deg',
-  minFieldOfView: '12deg',
+  /*
+   * Angulo de visao fechado, como no prototipo. Lente tele achata a
+   * perspectiva e faz o movel parecer maior e mais caro; grande angular
+   * distorce as proporcoes e denuncia que aquilo e um render.
+   */
+  fieldOfView: '19deg',
+  minFieldOfView: '10deg',
   cameraTarget: '0m 0.35m 0m',
-  minCameraOrbit: 'auto 0deg 2.4m',
-  maxCameraOrbit: 'auto 88deg 6m',
-  groups: [
-    {
-      id: 'upholstery',
-      label: { pt: 'Estofado', de: 'Polster' },
-      finishes: [
-        {
-          id: 'areia',
-          label: { pt: 'Areia', de: 'Sand' },
-          material: 'Fabric_mtl',
-          textureUrl: null,
-          color: [0.847, 0.804, 0.733],
-          roughness: 0.9,
-          metalness: 0,
-        },
-        {
-          id: 'grafite',
-          label: { pt: 'Grafite', de: 'Graphit' },
-          material: 'Fabric_mtl',
-          textureUrl: null,
-          color: [0.227, 0.227, 0.235],
-          roughness: 0.88,
-          metalness: 0,
-        },
-        {
-          id: 'musgo',
-          label: { pt: 'Verde musgo', de: 'Moosgruen' },
-          material: 'Fabric_mtl',
-          textureUrl: null,
-          color: [0.29, 0.365, 0.306],
-          roughness: 0.9,
-          metalness: 0,
-        },
-        {
-          id: 'terracota',
-          label: { pt: 'Terracota', de: 'Terrakotta' },
-          material: 'Fabric_mtl',
-          textureUrl: null,
-          color: [0.706, 0.38, 0.29],
-          roughness: 0.9,
-          metalness: 0,
-        },
-      ],
-    },
-    {
-      id: 'frame',
-      label: { pt: 'Estrutura', de: 'Gestell' },
-      finishes: [
-        {
-          id: 'carvalho',
-          label: { pt: 'Carvalho', de: 'Eiche' },
-          material: 'Legs_mtl',
-          textureUrl: null,
-          color: [0.725, 0.541, 0.325],
-          roughness: 0.35,
-          metalness: 0,
-        },
-        {
-          id: 'nogueira',
-          label: { pt: 'Nogueira', de: 'Nussbaum' },
-          material: 'Legs_mtl',
-          textureUrl: null,
-          color: [0.42, 0.267, 0.161],
-          roughness: 0.3,
-          metalness: 0,
-        },
-        {
-          id: 'ebano',
-          label: { pt: 'Ebano', de: 'Ebenholz' },
-          material: 'Legs_mtl',
-          textureUrl: null,
-          color: [0.169, 0.137, 0.125],
-          roughness: 0.28,
-          metalness: 0,
-        },
-        {
-          id: 'latao',
-          label: { pt: 'Latao', de: 'Messing' },
-          material: 'Legs_mtl',
-          textureUrl: null,
-          color: [0.69, 0.553, 0.247],
-          // Metal e o unico caso em que metalness 1 e correto. Valores
-          // intermediarios nao existem na fisica que o PBR modela.
-          roughness: 0.18,
-          metalness: 1,
-        },
-      ],
-    },
-  ],
+  minCameraOrbit: 'auto 0deg 2.2m',
+  maxCameraOrbit: 'auto 88deg 5m',
+  groups: [],
 }

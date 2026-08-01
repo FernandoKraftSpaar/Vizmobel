@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../lang'
-import { applyFinish } from './applyFinish'
-import { loadModelViewer } from './loadModelViewer'
+import { loadModelViewer, warmConnections } from './loadModelViewer'
 import { createOrbitScrub, orbitScrubDefaults } from './orbitScrub'
-import type { Finish, ModelConfig } from './catalog'
+import type { ModelConfig } from './catalog'
 import type { ModelViewerElement } from './types'
 
 /**
- * O produto no palco: modelo 3D, seletor de acabamentos e o botao de AR.
+ * O produto no palco.
  *
- * O componente carrega o motor sozinho, quando a secao se aproxima da tela, e
- * nao renderiza nada de 3D antes disso.
+ * O seletor de acabamentos foi retirado ate o catalogo real existir. O motor de
+ * troca continua em `applyFinish.ts`: quando `config.groups` deixar de vir
+ * vazio do banco, a interface volta sem que nada aqui precise mudar de forma.
  */
 export function ModelStage({ config }: { config: ModelConfig }) {
   const wrap = useRef<HTMLDivElement>(null)
@@ -19,42 +19,63 @@ export function ModelStage({ config }: { config: ModelConfig }) {
 
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
-  const [selected, setSelected] = useState<Record<string, string>>({})
 
-  // 1. Carrega o motor quando a secao se aproxima -- 400px antes de aparecer,
-  //    para que o download termine enquanto o visitante ainda esta rolando.
   useEffect(() => {
     const el = wrap.current
     if (!el) return undefined
 
-    let cancelled = false
+    // Abre conexao com o CDN e reserva o download do modelo imediatamente, para
+    // que script e GLB baixem em paralelo em vez de um depois do outro.
+    warmConnections(config.glbUrl)
 
+    let cancelled = false
+    let started = false
+
+    const start = () => {
+      if (started) return
+      started = true
+      observer.disconnect()
+      window.clearTimeout(timer)
+
+      loadModelViewer().then(
+        () => {
+          if (!cancelled) setReady(true)
+        },
+        (error: unknown) => {
+          console.error(error)
+          if (!cancelled) setFailed(true)
+        },
+      )
+    }
+
+    /*
+     * Duas partidas, a que vier primeiro.
+     *
+     * A rolagem antecipa o carregamento com margem larga. Mas depender so dela
+     * era o defeito: quem rola rapido chegava na secao antes do download
+     * terminar. Entao um cronometro curto dispara sozinho logo apos a primeira
+     * pintura, quando a rede ja esta livre do que importa para o hero.
+     */
     const observer = new IntersectionObserver(
       (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return
-        observer.disconnect()
-        loadModelViewer().then(
-          () => {
-            if (!cancelled) setReady(true)
-          },
-          (error: unknown) => {
-            console.error(error)
-            if (!cancelled) setFailed(true)
-          },
-        )
+        if (entries.some((entry) => entry.isIntersecting)) start()
       },
-      { rootMargin: '400px 0px' },
+      { rootMargin: '1400px 0px' },
     )
-
     observer.observe(el)
+
+    // setTimeout e nao requestIdleCallback: o Safari ainda nao implementa a
+    // segunda, e e justamente no iPhone que a AR importa mais.
+    const timer = window.setTimeout(start, 1200)
 
     return () => {
       cancelled = true
       observer.disconnect()
+      window.clearTimeout(timer)
     }
-  }, [])
+  }, [config.glbUrl])
 
-  // 2. Liga a camera a rolagem, mas so depois que o elemento existe no DOM.
+  // Liga a camera a rolagem, mas so depois que o elemento existe no DOM.
   useEffect(() => {
     const el = viewer.current
     const section = wrap.current
@@ -66,15 +87,6 @@ export function ModelStage({ config }: { config: ModelConfig }) {
       trigger: section,
     })
   }, [ready])
-
-  function choose(group: string, finish: Finish) {
-    setSelected((current) => ({ ...current, [group]: finish.id }))
-    const el = viewer.current
-    if (!el) return
-    void applyFinish(el, finish).catch((error: unknown) => {
-      console.error('[viewer] Falha ao aplicar acabamento', error)
-    })
-  }
 
   return (
     <div className="viewer" ref={wrap}>
@@ -114,42 +126,9 @@ export function ModelStage({ config }: { config: ModelConfig }) {
           </model-viewer>
         ) : (
           <div className="viewer__placeholder" aria-hidden="true">
-            <span>{failed ? '3D indisponivel' : 'carregando 3D'}</span>
+            <span>{failed ? '3D indisponivel' : 'carregando'}</span>
           </div>
         )}
-      </div>
-
-      <div className="finishes">
-        {config.groups.map((group) => (
-          <div className="finishes__group" key={group.id}>
-            <span className="finishes__label">{t(group.label)}</span>
-            <div
-              className="finishes__row"
-              role="group"
-              aria-label={t(group.label)}
-            >
-              {group.finishes.map((finish) => {
-                const [r, g, b] = finish.color
-                const active = selected[group.id] === finish.id
-                return (
-                  <button
-                    key={finish.id}
-                    type="button"
-                    className="swatch"
-                    aria-pressed={active}
-                    aria-label={t(finish.label)}
-                    title={t(finish.label)}
-                    disabled={!ready || failed}
-                    onClick={() => choose(group.id, finish)}
-                    style={{
-                      background: `rgb(${Math.round(r * 255)} ${Math.round(g * 255)} ${Math.round(b * 255)})`,
-                    }}
-                  />
-                )
-              })}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   )
