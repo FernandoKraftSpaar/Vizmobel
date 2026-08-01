@@ -97,6 +97,8 @@ export type NavItem = { href: string; label: Localized }
 
 export type SiteContent = {
   brand: string
+  /** Sedes da empresa, exibidas no rodape. */
+  cities: string[]
   nav: NavItem[]
   sections: Section[]
 }
