@@ -1,4 +1,4 @@
-import { useRef, type MouseEvent } from 'react'
+import { useRef, type CSSProperties, type MouseEvent } from 'react'
 import { useGSAP } from '@gsap/react'
 import { site } from './content/site'
 import { LANGS } from './content/types'
@@ -36,6 +36,11 @@ function scrollToSection(event: MouseEvent<HTMLAnchorElement>, href: string) {
   })
 }
 
+/** Atraso em cascata para o desdobramento do menu. */
+function rank(index: number): CSSProperties {
+  return { '--i': index } as CSSProperties
+}
+
 export function App() {
   const { t, lang, setLang } = useLang()
   const route = useRoute()
@@ -71,9 +76,18 @@ export function App() {
 
   const onHome = route === 'home'
 
+  /*
+   * Fora da home o menu ja nasce solido.
+   *
+   * A barra transparente so funciona porque o hero e azul: as letras brancas
+   * pousam sobre o proprio bloco institucional. No catalogo, que abre em
+   * branco, a mesma barra seria texto branco sobre fundo branco.
+   */
+  const headerClass = `header${onHome ? '' : ' header--solid'}`
+
   return (
     <>
-      <header className="header" ref={header}>
+      <header className={headerClass} ref={header}>
         <div className="container header__inner">
           <a
             className="brand"
@@ -86,31 +100,42 @@ export function App() {
             <img className="brand__mark" src={logoMark} alt={site.brand} />
           </a>
 
-          {onHome ? (
-            <nav className="nav">
-              {site.nav.map((item) => (
+          {/* O rotulo permanece visivel e as opcoes se desdobram sob o cursor.
+              Sem o rotulo o visitante nao teria como saber que ha navegacao
+              ali -- area sensivel invisivel e adivinhacao, nao interface. */}
+          <div className="header__menu">
+            <span className="header__menu-label" aria-hidden="true">
+              {lang === 'pt' ? 'Menu' : 'Menü'}
+            </span>
+
+            {onHome ? (
+              <nav className="nav">
+                {site.nav.map((item, index) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    style={rank(index)}
+                    onClick={(e) => scrollToSection(e, item.href)}
+                  >
+                    {t(item.label)}
+                  </a>
+                ))}
+              </nav>
+            ) : (
+              <nav className="nav">
                 <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={(e) => scrollToSection(e, item.href)}
+                  href="#/"
+                  style={rank(0)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    navigate('home')
+                  }}
                 >
-                  {t(item.label)}
+                  {lang === 'pt' ? 'Início' : 'Startseite'}
                 </a>
-              ))}
-            </nav>
-          ) : (
-            <nav className="nav">
-              <a
-                href="#/"
-                onClick={(e) => {
-                  e.preventDefault()
-                  navigate('home')
-                }}
-              >
-                {lang === 'pt' ? 'Início' : 'Startseite'}
-              </a>
-            </nav>
-          )}
+              </nav>
+            )}
+          </div>
 
           <div className="langswitch">
             {LANGS.map((code) => (

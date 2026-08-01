@@ -13,8 +13,8 @@ export type { HeaderWaveConfig } from './headerWave'
 export { createSlideIn, slideInDefaults } from './slideIn'
 export type { SlideInConfig } from './slideIn'
 
-export { createOrbitFlow, orbitFlowDefaults } from './orbitFlow'
-export type { OrbitFlowConfig } from './orbitFlow'
+export { createWaveFlow, waveFlowDefaults } from './waveFlow'
+export type { WaveFlowConfig } from './waveFlow'
 
 export { createCardTilt, cardTiltDefaults } from './cardTilt'
 export type { CardTiltConfig, ParallaxLayer } from './cardTilt'

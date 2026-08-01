@@ -7,12 +7,15 @@ import { navigate } from '../router'
 import type { HeroSection } from '../content/types'
 
 /**
- * Hero centralizado ocupando a viewport inteira.
+ * Hero centralizado ocupando a viewport inteira, agora em bloco azul.
  *
- * A decisao de layout e a mais importante da pagina: um unico foco. Titulo a
- * esquerda com um cartao a direita dividia a atencao no primeiro segundo, e
- * atencao dividida no primeiro segundo e o que faz um site parecer improvisado.
- * O objeto 3D ganhou secao propria e entra no primeiro rolamento.
+ * O fundo institucional resolve um problema que o branco criava: a primeira
+ * tela nao tinha identidade nenhuma ate o visitante rolar. Com o navy, a marca
+ * se apresenta antes da primeira palavra ser lida.
+ *
+ * O botao mudou para dourado por necessidade, nao por gosto: navy sobre navy
+ * desapareceria. O dourado tambem passa a ser o unico ponto quente da tela,
+ * que e exatamente onde queremos o clique.
  */
 export function Hero({ data }: { data: HeroSection }) {
   const root = useRef<HTMLElement>(null)
@@ -53,6 +56,7 @@ export function Hero({ data }: { data: HeroSection }) {
         <div data-hero-action="">
           <RollButton
             label={t(data.cta)}
+            variant="gold"
             size="lg"
             onClick={() => navigate('catalog')}
           />
