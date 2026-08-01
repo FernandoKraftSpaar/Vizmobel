@@ -20,7 +20,7 @@ const copy = {
   },
   soon: { pt: 'Modelo em produ\u00e7\u00e3o', de: 'Modell in Arbeit' },
   live: { pt: 'Dispon\u00edvel em AR', de: 'In AR verf\u00fcgbar' },
-  grid: { pt: 'Pe\u00e7as do catr\u00e1logo', de: 'St\u00fccke im Katalog' },
+  grid: { pt: 'Pe\u00e7as do cat\u00e1logo', de: 'St\u00fccke im Katalog' },
 } satisfies Record<string, Localized>
 
 /**

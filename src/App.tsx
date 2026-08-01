@@ -107,7 +107,7 @@ export function App() {
                   navigate('home')
                 }}
               >
-                {lang === 'pt' ? 'In\u00edcio' : 'Startseite'}
+                {lang === 'pt' ? 'Início' : 'Startseite'}
               </a>
             </nav>
           )}
@@ -152,7 +152,7 @@ export function App() {
         />
 
         <span>
-          {new Date().getFullYear()} {site.brand} \u00b7 {site.cities.join(' \u00b7 ')}
+          {new Date().getFullYear()} {site.brand} · {site.cities.join(' · ')}
         </span>
       </footer>
     </>
