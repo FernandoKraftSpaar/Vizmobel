@@ -9,6 +9,16 @@
 export const MODEL_VIEWER_SRC =
   'https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js'
 
+/**
+ * Segundo endereco para o mesmo arquivo.
+ *
+ * Sem reserva, um CDN fora do ar nao degrada a AR: elimina. O visitante ve
+ * "3D indisponivel" e nao ha nada na pagina que explique ou contorne. Dois
+ * dominios independentes tornam essa falha um atraso de alguns segundos.
+ */
+export const MODEL_VIEWER_FALLBACK_SRC =
+  'https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js'
+
 const CDN_ORIGIN = 'https://ajax.googleapis.com'
 
 let pending: Promise<void> | null = null
@@ -37,18 +47,31 @@ export function warmConnections(modelUrl: string): void {
 
   link({ rel: 'preconnect', href: CDN_ORIGIN, crossorigin: 'anonymous' })
   link({ rel: 'dns-prefetch', href: CDN_ORIGIN })
-  link({ rel: 'preload', as: 'fetch', href: modelUrl, crossorigin: 'anonymous' })
+
+  /*
+   * O `crossorigin` do preload precisa combinar com o modo da requisicao real,
+   * senao o navegador trata as duas como recursos distintos e baixa o arquivo
+   * DE NOVO -- o oposto exato do que o preload existe para fazer.
+   *
+   * Hoje o GLB mora no mesmo dominio da pagina, entao o atributo tem de ficar
+   * de fora. Quando os modelos passarem a vir do blob storage, a origem sera
+   * outra e o atributo volta sozinho. Por isso a decisao e calculada e nao
+   * escrita a mao: ela se corrige na migracao.
+   */
+  const absolute = new URL(modelUrl, window.location.href)
+  const crossOrigin = absolute.origin !== window.location.origin
+
+  link({
+    rel: 'preload',
+    as: 'fetch',
+    href: modelUrl,
+    ...(crossOrigin ? { crossorigin: 'anonymous' } : {}),
+  })
 }
 
-/**
- * Carrega o model-viewer sob demanda e resolve quando o custom element estiver
- * registrado. Chamadas concorrentes compartilham a mesma promessa.
- */
-export function loadModelViewer(src: string = MODEL_VIEWER_SRC): Promise<void> {
-  if (customElements.get('model-viewer')) return Promise.resolve()
-  if (pending) return pending
-
-  pending = new Promise<void>((resolve, reject) => {
+/** Injeta um script de modulo e resolve quando o custom element se registra. */
+function injectScript(src: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
     const script = document.createElement('script')
     script.type = 'module'
     script.src = src
@@ -60,13 +83,47 @@ export function loadModelViewer(src: string = MODEL_VIEWER_SRC): Promise<void> {
     })
 
     script.addEventListener('error', () => {
-      // Zera o cache: uma falha de rede nao deve condenar as tentativas
-      // seguintes a devolver a mesma promessa rejeitada para sempre.
-      pending = null
+      script.remove()
       reject(new Error(`Falha ao carregar o model-viewer de ${src}`))
     })
 
     document.head.append(script)
+  })
+}
+
+async function loadFrom(sources: readonly string[]): Promise<void> {
+  let last: unknown = null
+
+  for (const source of sources) {
+    try {
+      await injectScript(source)
+      return
+    } catch (error) {
+      last = error
+      console.warn(`model-viewer indisponivel em ${source}`)
+    }
+  }
+
+  throw last instanceof Error
+    ? last
+    : new Error('Nenhum CDN do model-viewer respondeu')
+}
+
+/**
+ * Carrega o model-viewer sob demanda e resolve quando o custom element estiver
+ * registrado. Chamadas concorrentes compartilham a mesma promessa.
+ */
+export function loadModelViewer(src?: string): Promise<void> {
+  if (customElements.get('model-viewer')) return Promise.resolve()
+  if (pending) return pending
+
+  const sources = src ? [src] : [MODEL_VIEWER_SRC, MODEL_VIEWER_FALLBACK_SRC]
+
+  pending = loadFrom(sources).catch((error: unknown) => {
+    // Zera o cache: uma falha de rede nao deve condenar as tentativas
+    // seguintes a devolver a mesma promessa rejeitada para sempre.
+    pending = null
+    throw error
   })
 
   return pending
