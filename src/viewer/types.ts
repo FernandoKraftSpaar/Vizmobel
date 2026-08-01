@@ -35,12 +35,29 @@ export interface MvModel {
   readonly materials: readonly MvMaterial[]
 }
 
+/**
+ * Estados publicados pelo evento `ar-status`.
+ *
+ * `session-started` significa que a camera abriu, nao que o movel apareceu:
+ * entre um e outro o aparelho ainda esta procurando o plano do chao. Essa
+ * distincao e a diferenca entre o visitante esperar e o visitante desistir.
+ */
+export type ArStatus =
+  | 'not-presenting'
+  | 'session-started'
+  | 'object-placed'
+  | 'failed'
+
 export interface ModelViewerElement extends HTMLElement {
   /** Nulo ate o GLB terminar de carregar. */
   readonly model: MvModel | null
   readonly loaded: boolean
   /** Resolve quando o elemento terminou o ciclo de render pendente. */
   readonly updateComplete: Promise<boolean>
+  /**
+   * Falso ate a deteccao de suporte terminar, e nao existe evento avisando
+   * quando ela termina. Por isso o valor e sondado, nao lido uma vez so.
+   */
   canActivateAR: boolean
   createTexture(uri: string): Promise<MvTexture>
   activateAR(): Promise<void>
@@ -74,6 +91,15 @@ type ModelViewerOwnAttributes = {
   ar: BooleanAttr
   'ar-modes': string
   'ar-placement': 'floor' | 'wall'
+  /**
+   * `fixed` trava o tamanho no que o GLB declara em metros.
+   *
+   * O padrao (`auto`) deixa o visitante redimensionar a peca com dois dedos, o
+   * que soa generoso e destroi a unica promessa que a ferramenta faz: mostrar
+   * se o movel CABE. Um sofa que o cliente encolheu ate caber nao responde
+   * pergunta nenhuma, e a devolucao acontece igual.
+   */
+  'ar-scale': 'auto' | 'fixed'
   'camera-controls': BooleanAttr
   'disable-pan': BooleanAttr
   'disable-tap': BooleanAttr

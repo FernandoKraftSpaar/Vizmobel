@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { useGSAP } from '@gsap/react'
 import { gsap } from '../motion/gsap'
-import { ModelStage } from '../viewer/ModelStage'
+import { ArStage } from '../viewer/ArStage'
 import { poltrona } from '../viewer/catalog'
 import { products } from '../content/products'
 import { navigate } from '../router'
@@ -15,8 +15,8 @@ const copy = {
     de: 'Katalog in Augmented Reality',
   },
   intro: {
-    pt: 'Escolha uma pe\u00e7a, gire com o dedo e toque em ver na sua sala para abrir a c\u00e2mera do celular. Sem app e sem cadastro.',
-    de: 'W\u00e4hlen Sie ein St\u00fcck, drehen Sie es mit dem Finger und tippen Sie auf Im Raum ansehen, um die Kamera zu \u00f6ffnen. Ohne App, ohne Registrierung.',
+    pt: 'Gire a pe\u00e7a com o dedo e toque em ver no seu ambiente para abrir a c\u00e2mera do celular. Ela entra na sala no tamanho real, sem app e sem cadastro.',
+    de: 'Drehen Sie das St\u00fcck mit dem Finger und tippen Sie auf Im eigenen Raum ansehen, um die Kamera zu \u00f6ffnen. Es erscheint in realer Gr\u00f6\u00dfe, ohne App und ohne Registrierung.',
   },
   soon: { pt: 'Modelo em produ\u00e7\u00e3o', de: 'Modell in Arbeit' },
   live: { pt: 'Dispon\u00edvel em AR', de: 'In AR verf\u00fcgbar' },
@@ -97,7 +97,7 @@ export function Catalog() {
       </div>
 
       <div className="catalog__hero" data-catalog-hero="">
-        <ModelStage config={poltrona} />
+        <ArStage config={poltrona} />
       </div>
 
       <h2 className="catalog__subtitle">{t(copy.grid)}</h2>
