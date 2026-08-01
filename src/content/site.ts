@@ -9,6 +9,8 @@ import type { SiteContent } from './types'
 export const site: SiteContent = {
   brand: 'VizM\u00f6bel',
 
+  cities: ['Horizontina', 'Neuss'],
+
   nav: [
     { href: '#stage', label: { pt: 'O produto', de: 'Das Produkt' } },
     { href: '#answer', label: { pt: 'O problema', de: 'Das Problem' } },
@@ -203,12 +205,12 @@ export const site: SiteContent = {
       heading: { pt: 'Quem somos', de: '\u00dcber uns' },
       paragraphs: [
         {
-          pt: 'A VizM\u00f6bel nasceu na Serra Ga\u00facha, no meio da maior concentra\u00e7\u00e3o de f\u00e1bricas de m\u00f3veis do Brasil, a partir de uma constata\u00e7\u00e3o simples: o setor vende um produto que ocupa espa\u00e7o, mas o vende por fotos que n\u00e3o t\u00eam escala.',
-          de: 'VizM\u00f6bel entstand in der Serra Ga\u00facha, inmitten der gr\u00f6\u00dften M\u00f6belindustrieregion Brasiliens, aus einer schlichten Beobachtung: Die Branche verkauft Produkte, die Raum einnehmen \u2014 \u00fcber Fotos ohne Ma\u00dfstab.',
+          pt: 'A VizM\u00f6bel nasceu entre dois mundos do Rio Grande do Sul: as ind\u00fastrias moveleiras da Serra, que fabricam para o pa\u00eds inteiro, e o ambiente inovador do noroeste ga\u00facho, onde Horizontina construiu uma cultura de engenharia em torno da ind\u00fastria de m\u00e1quinas.',
+          de: 'VizM\u00f6bel entstand zwischen zwei Welten von Rio Grande do Sul: der M\u00f6belindustrie der Serra, die das ganze Land beliefert, und dem innovativen Umfeld im Nordwesten des Bundesstaats, wo Horizontina rund um den Maschinenbau eine Ingenieurskultur aufgebaut hat.',
         },
         {
-          pt: 'Nosso nome junta visualiza\u00e7\u00e3o e M\u00f6bel, a palavra alem\u00e3 para m\u00f3veis. \u00c9 uma homenagem \u00e0 origem imigrante das marcenarias da regi\u00e3o e um lembrete de para onde queremos levar essa tecnologia.',
-          de: 'Unser Name verbindet Visualisierung und M\u00f6bel. Eine Hommage an die Einwanderergeschichte der Tischlereien der Region \u2014 und ein Hinweis darauf, wohin wir diese Technologie bringen wollen.',
+          pt: 'Dessa combina\u00e7\u00e3o veio uma constata\u00e7\u00e3o simples: o setor vende um produto que ocupa espa\u00e7o, mas o vende por fotos que n\u00e3o t\u00eam escala. Nosso nome junta visualiza\u00e7\u00e3o e M\u00f6bel, a palavra alem\u00e3 para m\u00f3veis \u2014 uma homenagem \u00e0 origem imigrante das marcenarias da regi\u00e3o. Em Neuss, na Ren\u00e2nia, fica nossa base europeia.',
+          de: 'Daraus ergab sich eine schlichte Erkenntnis: Die Branche verkauft Produkte, die Raum einnehmen \u2014 \u00fcber Fotos ohne Ma\u00dfstab. Unser Name verbindet Visualisierung und M\u00f6bel, eine Hommage an die Einwanderergeschichte der Tischlereien der Region. In Neuss im Rheinland liegt unsere europ\u00e4ische Basis.',
         },
         {
           pt: 'Trabalhamos com quem fabrica, n\u00e3o com quem apenas revende. A diferen\u00e7a aparece no detalhe: a junta encaixa, a textura acompanha a fibra da madeira e a medida bate com a ficha t\u00e9cnica.',
@@ -224,25 +226,25 @@ export const site: SiteContent = {
         {
           name: 'Selton',
           initials: 'SE',
-          place: 'Caxias do Sul',
+          place: 'Horizontina',
           role: { pt: 'Gest\u00e3o', de: 'Gesch\u00e4ftsf\u00fchrung' },
         },
         {
           name: 'Carol',
           initials: 'CA',
-          place: 'Porto Alegre',
+          place: 'Horizontina',
           role: { pt: 'Marketing', de: 'Marketing' },
         },
         {
           name: 'Timo',
           initials: 'TI',
-          place: 'Berlin',
+          place: 'Neuss',
           role: { pt: 'Produto', de: 'Produkt' },
         },
         {
           name: 'Fernando',
           initials: 'FE',
-          place: 'Porto Alegre',
+          place: 'Horizontina',
           role: { pt: 'Tecnologia', de: 'Technik' },
         },
       ],

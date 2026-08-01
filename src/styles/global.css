@@ -4,16 +4,9 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-/* Quem pediu menos movimento nao deveria receber scroll animado tampouco. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
+/* Nao existe scroll-behavior: smooth aqui de proposito. A propriedade afeta
+   tambem os ajustes de rolagem que o ScrollTrigger faz ao fixar secoes, e com
+   duas secoes fixadas isso vira tremor. A navegacao rola por JavaScript. */
 
 body {
   margin: 0;
@@ -23,8 +16,8 @@ body {
   font-size: 17px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  /* A pagina anima no eixo X em alguns pontos; sem isto o celular ganha
-     uma barra de rolagem horizontal fantasma. */
+  /* A pagina anima no eixo X em varios pontos; sem isto o celular ganha uma
+     barra de rolagem horizontal fantasma. */
   overflow-x: hidden;
 }
 
@@ -33,6 +26,11 @@ h2,
 h3,
 p {
   margin: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 .container {
@@ -54,19 +52,6 @@ p {
 .section--dark {
   background: var(--grad);
   color: #fff;
-}
-
-.eyebrow {
-  font-size: 13px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--gold-deep);
-  font-weight: 600;
-  margin-bottom: 18px;
-}
-
-.section--dark .eyebrow {
-  color: var(--gold);
 }
 
 .heading {
@@ -94,23 +79,48 @@ p {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 50;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+  will-change: transform;
+}
+
+/* Aparencia trocada por classe, deslocamento animado pelo GSAP. Animar cor e
+   altura por JavaScript seria desperdicio: o CSS ja faz isso na GPU. */
+.header.is-compact {
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: saturate(180%) blur(12px);
-  background: rgba(255, 255, 255, 0.78);
-  border-bottom: 1px solid var(--border);
+  border-bottom-color: var(--border);
 }
 
 .header__inner {
   display: flex;
   align-items: center;
   gap: 24px;
-  height: 62px;
+  height: 84px;
+  transition: height 0.3s ease;
+}
+
+.header.is-compact .header__inner {
+  height: 60px;
 }
 
 .brand {
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  font-size: 18px;
-  color: var(--navy);
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand__mark {
+  height: 34px;
+  width: auto;
+  transition: height 0.3s ease;
+}
+
+.header.is-compact .brand__mark {
+  height: 26px;
 }
 
 .nav {
@@ -142,6 +152,7 @@ p {
   border: 1px solid var(--border);
   border-radius: 999px;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 @media (min-width: 900px) {
@@ -222,43 +233,79 @@ p {
   white-space: nowrap;
 }
 
-/* -------------------------------------------------------------- hero */
+/* ------------------------------------------------------------------ hero */
 
 .section--hero {
-  padding-top: calc(62px + var(--section-y));
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding-block: 0;
   background: var(--bg);
 }
 
-.hero__grid {
+.hero {
+  text-align: center;
   display: grid;
-  gap: clamp(40px, 6vw, 72px);
-  align-items: center;
-}
-
-@media (min-width: 960px) {
-  .hero__grid {
-    grid-template-columns: 1.05fr 0.95fr;
-  }
+  justify-items: center;
 }
 
 .hero__title {
-  font-size: clamp(36px, 5.4vw, 62px);
-  line-height: 1.06;
-  letter-spacing: -0.03em;
+  font-size: clamp(38px, 6.6vw, 84px);
+  line-height: 1.03;
+  letter-spacing: -0.035em;
   font-weight: 700;
   text-wrap: balance;
+  max-width: 17ch;
 }
 
 .hero__sub {
   color: var(--text-soft);
-  max-width: 52ch;
-  margin-block: 24px 32px;
+  max-width: 46ch;
+  font-size: clamp(16px, 1.6vw, 20px);
+  margin-block: 26px 36px;
 }
 
-/* ----------------------------------------------------------- tilt card */
+.hero__cue {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: var(--text-faint);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------- tilt card */
+
+.section--stage {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.stage {
+  display: grid;
+  justify-items: center;
+  gap: 34px;
+}
+
+.stage__caption {
+  text-align: center;
+  max-width: 34ch;
+  font-size: clamp(19px, 2.4vw, 26px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
 
 .tiltcard {
   position: relative;
+  width: min(440px, 74vw);
   aspect-ratio: 4 / 5;
   border-radius: var(--radius-lg);
   background: var(--grad);
@@ -316,19 +363,69 @@ p {
   color: rgba(255, 255, 255, 0.62);
 }
 
-/* ---------------------------------------------------------- numbers */
+/* ------------------------------------------------------------- questions */
 
-.metrics {
+.questions {
   display: grid;
-  gap: 28px;
-  margin-top: 48px;
+  gap: clamp(30px, 6vh, 68px);
 }
 
-@media (min-width: 760px) {
-  .metrics {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
-  }
+.question {
+  font-size: clamp(21px, 3.2vw, 38px);
+  font-weight: 650;
+  letter-spacing: -0.022em;
+  line-height: 1.16;
+  max-width: 20ch;
+  text-wrap: balance;
+  will-change: transform;
+}
+
+.question[data-side='left'] {
+  justify-self: start;
+  text-align: left;
+}
+
+.question[data-side='right'] {
+  justify-self: end;
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------- answer */
+
+.answer {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+}
+
+.answer__statement {
+  font-size: clamp(28px, 4.8vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.answer__follow {
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 44ch;
+  margin-top: 22px;
+  font-size: clamp(16px, 1.7vw, 19px);
+}
+
+.answer__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(32px, 7vw, 84px);
+  margin-top: clamp(40px, 6vh, 68px);
+}
+
+.metric {
+  text-align: center;
+  display: grid;
+  justify-items: center;
 }
 
 .metric__value {
@@ -347,52 +444,183 @@ p {
   margin-top: 12px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 15px;
-  max-width: 26ch;
+  max-width: 24ch;
 }
 
-/* --------------------------------------------------------- services */
+/* -------------------------------------------------------------- solution */
 
-.cards {
+.solution__heading {
+  font-size: clamp(28px, 4.2vw, 50px);
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  line-height: 1.1;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.attributes {
   display: grid;
-  gap: 22px;
-  margin-top: 52px;
+  gap: clamp(26px, 5vh, 54px);
+  margin-top: clamp(44px, 7vh, 72px);
 }
 
-@media (min-width: 720px) {
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.card {
+.attribute {
+  max-width: 48ch;
+  padding: 28px 30px 30px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 30px 28px 32px;
   box-shadow: var(--shadow);
   will-change: transform;
 }
 
-.card__index {
+.attribute[data-side='left'] {
+  justify-self: start;
+}
+
+.attribute[data-side='right'] {
+  justify-self: end;
+}
+
+.attribute__index {
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--gold-deep);
 }
 
-.card__title {
-  font-size: 21px;
+.attribute__title {
+  font-size: clamp(19px, 2.2vw, 24px);
   font-weight: 650;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.018em;
   margin-block: 12px 10px;
+  line-height: 1.22;
 }
 
-.card__body {
+.attribute__body {
   color: var(--text-soft);
   font-size: 15.5px;
 }
 
-/* ------------------------------------------------------------ about */
+/* ------------------------------------------------------------------ flow */
+
+.flow {
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+}
+
+.orbit {
+  position: relative;
+  width: min(560px, 100%);
+  aspect-ratio: 1;
+  margin: clamp(52px, 9vh, 96px) auto 0;
+}
+
+.orbit__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Girar em -90 graus faz o traco comecar no topo em vez da direita. */
+  rotate: -90deg;
+}
+
+.orbit__track,
+.orbit__ring {
+  fill: none;
+  stroke-width: 0.5;
+  stroke-linecap: round;
+}
+
+.orbit__track {
+  stroke: rgba(0, 0, 0, 0.09);
+}
+
+.orbit__ring {
+  stroke: var(--gold);
+}
+
+.orbit__node {
+  position: absolute;
+  width: 196px;
+  text-align: center;
+  /* A propriedade translate e independente de transform, entao o GSAP pode
+     animar escala no mesmo elemento sem apagar este centramento. */
+  translate: -50% -50%;
+  will-change: transform;
+}
+
+.orbit__node--top {
+  left: 50%;
+  top: 0;
+}
+
+.orbit__node--right {
+  left: 100%;
+  top: 50%;
+}
+
+.orbit__node--bottom {
+  left: 50%;
+  top: 100%;
+}
+
+.orbit__node--left {
+  left: 0;
+  top: 50%;
+}
+
+.orbit__n {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--gold-deep);
+}
+
+.orbit__title {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin-block: 6px 4px;
+}
+
+.orbit__body {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+/* Abaixo de 900px o pin e desligado no JavaScript e o circulo perde sentido:
+   nao ha largura para distribuir quatro nos ao redor dele. */
+@media (max-width: 899px) {
+  .flow {
+    min-height: 0;
+  }
+
+  .orbit {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    aspect-ratio: auto;
+  }
+
+  .orbit__svg {
+    display: none;
+  }
+
+  .orbit__node {
+    position: static;
+    translate: none;
+    width: 100%;
+    text-align: left;
+    padding: 20px 22px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+}
+
+/* ----------------------------------------------------------------- about */
 
 .prose {
   display: grid;
@@ -403,47 +631,7 @@ p {
   color: var(--text-soft);
 }
 
-/* ---------------------------------------------------------- process */
-
-.process {
-  min-height: 100vh;
-  display: grid;
-  align-content: center;
-}
-
-.process__stage {
-  position: relative;
-  margin-top: 44px;
-  min-height: 240px;
-}
-
-.step {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  gap: 12px;
-  align-content: start;
-}
-
-.step__n {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--gold);
-}
-
-.step__title {
-  font-size: clamp(26px, 3.4vw, 38px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.step__body {
-  color: rgba(255, 255, 255, 0.72);
-  max-width: 54ch;
-}
-
-/* ------------------------------------------------------------- team */
+/* ------------------------------------------------------------------ team */
 
 .team {
   display: grid;
@@ -500,7 +688,7 @@ p {
   margin-top: 6px;
 }
 
-/* -------------------------------------------------------------- cta */
+/* ------------------------------------------------------------------- cta */
 
 .cta {
   text-align: center;
@@ -523,7 +711,7 @@ p {
   font-size: 14px;
 }
 
-/* ----------------------------------------------------------- footer */
+/* ---------------------------------------------------------------- footer */
 
 .footer {
   border-top: 1px solid var(--border);
@@ -532,8 +720,15 @@ p {
   font-size: 14px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 16px;
   justify-content: space-between;
+}
+
+.footer__wordmark {
+  height: 24px;
+  width: auto;
+  opacity: 0.55;
 }
 
 /* Regra de seguranca: se o JavaScript falhar ou o usuario pedir movimento
