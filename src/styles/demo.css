@@ -54,8 +54,8 @@
   justify-items: center;
   gap: 12px;
   text-align: center;
-  /* Altura reservada para que a troca entre sondagem, botao e alternativa nao
-     empurre a grade de produtos para cima e para baixo. */
+  /* Altura reservada para que a troca entre preparando, pronto e mensagem de
+     estado nao empurre a grade de produtos para cima e para baixo. */
   min-height: 92px;
   align-content: start;
 }
@@ -80,22 +80,36 @@
   transition:
     transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1),
     box-shadow 0.32s cubic-bezier(0.2, 0.7, 0.2, 1),
-    background 0.24s;
+    background 0.24s,
+    opacity 0.24s;
 }
 
-.demo__cta:hover {
+.demo__cta:hover:not(:disabled) {
   background: var(--gold-soft);
   transform: scale(1.05);
   box-shadow: 0 18px 40px rgb(234 179 8 / 0.36);
 }
 
-.demo__cta:active {
+.demo__cta:active:not(:disabled) {
   transform: scale(1.01);
 }
 
 .demo__cta:focus-visible {
   outline: 2px solid var(--navy);
   outline-offset: 3px;
+}
+
+/*
+ * Estado de espera visivel, e nao botao escondido.
+ *
+ * Enquanto o GLB baixa, o botao ja ocupa o lugar dele em tamanho e cor. Assim
+ * a pessoa sabe que a funcao existe e esta chegando, em vez de descobrir um
+ * botao que aparece do nada e empurra a pagina.
+ */
+.demo__cta:disabled {
+  cursor: progress;
+  opacity: 0.55;
+  box-shadow: none;
 }
 
 .demo__cta-icon {
@@ -106,7 +120,7 @@
 .demo__status {
   font-size: 14px;
   color: var(--text-soft);
-  max-width: 42ch;
+  max-width: 46ch;
   margin: 0;
 }
 
@@ -169,7 +183,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .demo__cta:hover {
+  .demo__cta:hover:not(:disabled) {
     transform: none;
   }
 }
