@@ -1,26 +1,21 @@
 import { useRef } from 'react'
 import { useGSAP } from '@gsap/react'
-import { gsap } from '../motion/gsap'
-import {
-  createScrubPin,
-  scrubPinDefaults,
-  createCardTilt,
-  cardTiltDefaults,
-  type ParallaxLayer,
-} from '../motion/effects'
+import { createScrubPin, scrubPinDefaults } from '../motion/effects'
 import { useLang } from '../lang'
+import { ModelStage } from '../viewer/ModelStage'
+import { poltrona } from '../viewer/catalog'
 import type { StageSection } from '../content/types'
 
 /**
  * O objeto conquista o palco.
  *
- * A secao fica fixa enquanto o cartao cresce de 38% ate o tamanho final. So
+ * A secao fica fixa enquanto o conjunto cresce de 42% ate o tamanho final. So
  * depois disso a legenda aparece. A ordem importa: apresentar o objeto e
  * explica-lo ao mesmo tempo obriga o olho a escolher, e ele escolhe o texto.
  *
- * A inclinacao pelo cursor convive com a entrada porque as duas animacoes
- * escrevem em componentes diferentes da transformacao -- escala e deslocamento
- * de um lado, rotacao e profundidade do outro.
+ * A inclinacao pelo cursor saiu daqui. O model-viewer tem controle de camera
+ * proprio, e duas fontes de rotacao disputando o mesmo ponteiro produzem um
+ * objeto que parece ter vontade propria.
  */
 export function Stage({ data }: { data: StageSection }) {
   const root = useRef<HTMLElement>(null)
@@ -35,14 +30,7 @@ export function Stage({ data }: { data: StageSection }) {
       const caption = el.querySelector<HTMLElement>('[data-stage-caption]')
       if (!card || !caption) return undefined
 
-      const parallaxLayers: ParallaxLayer[] = gsap.utils
-        .toArray<HTMLElement>('[data-tilt-layer]', card)
-        .map((layer) => ({
-          el: layer,
-          depth: Number(layer.dataset['depth'] ?? 0),
-        }))
-
-      const stopPin = createScrubPin({
+      return createScrubPin({
         ...scrubPinDefaults,
         section: el,
         end: '+=130%',
@@ -50,7 +38,7 @@ export function Stage({ data }: { data: StageSection }) {
           // Posicoes 0 e 0.5 sao fracoes do trecho rolado, nao segundos.
           tl.from(
             card,
-            { scale: 0.38, yPercent: 14, opacity: 0, ease: 'none', duration: 1 },
+            { scale: 0.42, yPercent: 12, opacity: 0, ease: 'none', duration: 1 },
             0,
           )
           tl.from(
@@ -60,17 +48,6 @@ export function Stage({ data }: { data: StageSection }) {
           )
         },
       })
-
-      const stopTilt = createCardTilt({
-        ...cardTiltDefaults,
-        card,
-        parallaxLayers,
-      })
-
-      return () => {
-        stopTilt()
-        stopPin()
-      }
     },
     { scope: root, dependencies: [lang], revertOnUpdate: true },
   )
@@ -78,10 +55,9 @@ export function Stage({ data }: { data: StageSection }) {
   return (
     <section id="stage" ref={root} className="section section--stage">
       <div className="container stage">
-        <div className="tiltcard" data-stage-card="">
-          <div className="tiltcard__glow" data-tilt-layer="" data-depth="26" />
-          <div className="tiltcard__shape" data-tilt-layer="" data-depth="-18" />
-          <div className="tiltcard__meta" data-tilt-layer="" data-depth="12">
+        <div className="stage__card" data-stage-card="">
+          <ModelStage config={poltrona} />
+          <div className="stage__meta">
             <strong>{t(data.modelName)}</strong>
             <span>{t(data.modelMeta)}</span>
           </div>

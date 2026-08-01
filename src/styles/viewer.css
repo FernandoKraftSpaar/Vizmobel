@@ -1,0 +1,163 @@
+/* =========================================================================
+   VISUALIZADOR 3D
+   ========================================================================= */
+
+.viewer {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+}
+
+.viewer__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: radial-gradient(
+    circle at 50% 42%,
+    #ffffff 0%,
+    var(--bg-soft) 58%,
+    #ececea 100%
+  );
+  border: 1px solid var(--border);
+}
+
+.viewer__canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+  /* Sem isto, arrastar o dedo sobre o objeto sequestra a rolagem vertical e o
+     visitante fica preso na secao. */
+  touch-action: pan-y;
+  --poster-color: transparent;
+  --progress-bar-color: var(--gold);
+  --progress-bar-height: 2px;
+}
+
+.viewer__placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* O model-viewer so revela este botao em aparelhos capazes de AR. */
+.viewer__ar {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 11px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.22);
+}
+
+.viewer__ar:hover {
+  background: var(--navy-soft);
+}
+
+/* =========================================================================
+   SELETOR DE ACABAMENTOS
+   ========================================================================= */
+
+.finishes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  justify-content: center;
+}
+
+.finishes__group {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.finishes__label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.finishes__row {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  outline: 1px solid var(--border);
+  outline-offset: -1px;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.swatch:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.swatch[aria-pressed='true'] {
+  border-color: var(--navy);
+}
+
+.swatch:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.stage__card {
+  display: grid;
+  gap: 14px;
+  max-width: 720px;
+  margin-inline: auto;
+  /* O GSAP escala este bloco durante o pin. Sem origem definida, o crescimento
+     puxa o objeto para fora do centro optico da secao. */
+  transform-origin: 50% 45%;
+}
+
+.stage__meta {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.stage__meta strong {
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .viewer__frame {
+    aspect-ratio: 1 / 1;
+  }
+
+  .finishes {
+    gap: 14px;
+  }
+}

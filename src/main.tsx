@@ -5,6 +5,7 @@ import { LangProvider } from './lang'
 import { App } from './App'
 import './styles/tokens.css'
 import './styles/global.css'
+import './styles/viewer.css'
 
 // Aqui, e so aqui, a camada de movimento toma conhecimento do bundler.
 // Ligar isto faz o ScrollTrigger desenhar os marcadores de start/end na tela
