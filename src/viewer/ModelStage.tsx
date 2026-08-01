@@ -82,7 +82,7 @@ export function ModelStage({ config }: { config: ModelConfig }) {
         {ready && !failed ? (
           <model-viewer
             ref={viewer}
-            class="viewer__canvas"
+            className="viewer__canvas"
             src={config.glbUrl}
             alt={t(config.alt)}
             ar=""
@@ -123,7 +123,11 @@ export function ModelStage({ config }: { config: ModelConfig }) {
         {config.groups.map((group) => (
           <div className="finishes__group" key={group.id}>
             <span className="finishes__label">{t(group.label)}</span>
-            <div className="finishes__row" role="group" aria-label={t(group.label)}>
+            <div
+              className="finishes__row"
+              role="group"
+              aria-label={t(group.label)}
+            >
               {group.finishes.map((finish) => {
                 const [r, g, b] = finish.color
                 const active = selected[group.id] === finish.id
