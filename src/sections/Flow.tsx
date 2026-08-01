@@ -1,35 +1,46 @@
-import { useRef } from 'react'
+import { useRef, type CSSProperties } from 'react'
 import { useGSAP } from '@gsap/react'
 import { gsap } from '../motion/gsap'
-import { createOrbitFlow } from '../motion/effects'
+import { createOrbitFlow, orbitFlowDefaults } from '../motion/effects'
 import { useLang } from '../lang'
 import type { FlowSection } from '../content/types'
 
-// Quatro posicoes cardeais sobre a circunferencia.
-const POSITIONS = ['top', 'right', 'bottom', 'left'] as const
+// Raios em porcentagem da caixa. O horizontal e maior que o vertical: a tela e
+// deitada, e uma circunferencia perfeita desperdicaria as laterais.
+const RADIUS_X = 44
+const RADIUS_Y = 36
+
+/** Posicao do passo sobre a elipse, comecando no topo e girando no sentido horario. */
+function seat(index: number, total: number): CSSProperties {
+  const radians = ((-90 + (index * 360) / total) * Math.PI) / 180
+  return {
+    '--x': `${50 + RADIUS_X * Math.cos(radians)}%`,
+    '--y': `${50 + RADIUS_Y * Math.sin(radians)}%`,
+  } as CSSProperties
+}
 
 /**
- * O fluxo de aquisicao desenhado como ciclo, nao como esteira.
+ * O fluxo de aquisicao como ciclo -- agora sem desenhar o ciclo.
  *
- * A forma carrega o argumento: uma fila de quatro caixas termina: um circulo
- * volta ao inicio. O que estamos descrevendo e um cliente que sai da duvida e
- * retorna a compra, entao a figura fecha.
+ * A forma continua carregando o argumento: uma fila termina, um circulo volta
+ * ao inicio, e o que descrevemos e um cliente que sai da duvida e retorna a
+ * compra. Mas o traco dourado atrapalhava mais do que ajudava, porque
+ * competia com o texto e ainda assim nao dizia por onde comecar. A ordem agora
+ * e dada pelo tempo: um passo de cada vez, na sequencia.
  */
 export function Flow({ data }: { data: FlowSection }) {
   const root = useRef<HTMLElement>(null)
-  const ring = useRef<SVGCircleElement>(null)
   const { t, lang } = useLang()
 
   useGSAP(
     () => {
       const section = root.current
-      const ringEl = ring.current
-      if (!section || !ringEl) return undefined
+      if (!section) return undefined
 
       const nodes = gsap.utils.toArray<HTMLElement>('[data-orbit-node]', section)
       if (nodes.length === 0) return undefined
 
-      return createOrbitFlow({ section, ring: ringEl, nodes })
+      return createOrbitFlow({ ...orbitFlowDefaults, section, nodes })
     },
     { scope: root, dependencies: [lang], revertOnUpdate: true },
   )
@@ -41,17 +52,11 @@ export function Flow({ data }: { data: FlowSection }) {
         <p className="lead">{t(data.intro)}</p>
 
         <div className="orbit">
-          <svg className="orbit__svg" viewBox="0 0 100 100" aria-hidden="true">
-            {/* Trilho estatico: sem ele o circulo parece incompleto ate o fim
-                da rolagem. */}
-            <circle className="orbit__track" cx="50" cy="50" r="42" />
-            <circle ref={ring} className="orbit__ring" cx="50" cy="50" r="42" />
-          </svg>
-
           {data.steps.map((step, index) => (
             <div
               key={step.id}
-              className={`orbit__node orbit__node--${POSITIONS[index] ?? 'top'}`}
+              className="orbit__node"
+              style={seat(index, data.steps.length)}
               data-orbit-node=""
             >
               <span className="orbit__n">{String(index + 1).padStart(2, '0')}</span>

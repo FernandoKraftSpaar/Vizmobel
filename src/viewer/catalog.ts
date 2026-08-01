@@ -82,7 +82,16 @@ export const poltrona: ModelConfig = {
    */
   fieldOfView: '19deg',
   minFieldOfView: '10deg',
-  cameraTarget: '0m 0.35m 0m',
+  /*
+   * ALVO AUTOMATICO, e nao uma altura chutada.
+   *
+   * `0m 0.35m 0m` presume que a origem do GLB esteja no centro da base do
+   * movel. Quando nao esta -- e no export de um modelador quase nunca esta --
+   * a camera aponta para um ponto vazio e a peca aparece deslocada dentro da
+   * moldura ate alguem girar. Com `auto`, o model-viewer mira no centro da
+   * caixa envolvente do modelo real, que e o unico ponto que sempre existe.
+   */
+  cameraTarget: 'auto auto auto',
   minCameraOrbit: 'auto 0deg 2.2m',
   maxCameraOrbit: 'auto 88deg 5m',
   groups: [],

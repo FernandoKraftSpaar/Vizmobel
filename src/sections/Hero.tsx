@@ -3,6 +3,7 @@ import { useGSAP } from '@gsap/react'
 import { createHeroIntro, heroIntroDefaults } from '../motion/effects'
 import { RollButton } from '../components/RollButton'
 import { useLang } from '../lang'
+import { navigate } from '../router'
 import type { HeroSection } from '../content/types'
 
 /**
@@ -50,7 +51,11 @@ export function Hero({ data }: { data: HeroSection }) {
         </p>
 
         <div data-hero-action="">
-          <RollButton label={t(data.cta)} size="lg" />
+          <RollButton
+            label={t(data.cta)}
+            size="lg"
+            onClick={() => navigate('catalog')}
+          />
         </div>
       </div>
 

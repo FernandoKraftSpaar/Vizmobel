@@ -2,18 +2,25 @@ import { useRef, type MouseEvent } from 'react'
 import { useGSAP } from '@gsap/react'
 import { site } from './content/site'
 import { LANGS } from './content/types'
-import { renderSection } from './sections/registry'
 import { setupResponsiveMotion } from './motion/effects/responsive'
-import { createHeaderReact, headerReactDefaults } from './motion/effects'
+import {
+  createHeaderReact,
+  headerReactDefaults,
+  createHeaderWave,
+  headerWaveDefaults,
+} from './motion/effects'
 import { logoMark, logoWordmark } from './assets'
 import { useLang } from './lang'
+import { useRoute, navigate } from './router'
+import { Home } from './pages/Home'
+import { Catalog } from './pages/Catalog'
 
 /**
  * Rolagem suave feita por JavaScript, e nao por scroll-behavior no CSS.
  *
  * A propriedade global aplica suavizacao a TODA rolagem da pagina, inclusive
  * aos ajustes que o proprio ScrollTrigger executa ao fixar uma secao e ao
- * recalcular posicoes. Com duas secoes fixadas, isso produz tremor. Aqui o
+ * recalcular posicoes. Com secoes fixadas, isso produz tremor. Aqui o
  * movimento e pedido explicitamente, num unico lugar, e some para quem
  * configurou movimento reduzido.
  */
@@ -31,45 +38,79 @@ function scrollToSection(event: MouseEvent<HTMLAnchorElement>, href: string) {
 
 export function App() {
   const { t, lang, setLang } = useLang()
+  const route = useRoute()
   const header = useRef<HTMLElement>(null)
+  const wave = useRef<SVGPathElement>(null)
 
   // A coreografia global vive aqui e nao em cada secao. O layout effect do
   // componente pai roda DEPOIS dos filhos, entao neste ponto todo elemento
-  // marcado com data-animate ja existe no DOM.
+  // marcado com data-animate ja existe no DOM. Trocar de rota troca o DOM
+  // inteiro, entao a rota entra nas dependencias junto com o idioma.
   useGSAP(() => setupResponsiveMotion(), {
-    dependencies: [lang],
+    dependencies: [lang, route],
     revertOnUpdate: true,
   })
 
-  // Sem dependencia de idioma: o menu reage a rolagem, nao a texto.
+  // Sem dependencia de idioma nem de rota: o menu reage a rolagem, nao a texto.
   useGSAP(
     () => {
       const el = header.current
-      if (!el) return undefined
-      return createHeaderReact({ ...headerReactDefaults, header: el })
+      const path = wave.current
+      if (!el || !path) return undefined
+
+      const stopReact = createHeaderReact({ ...headerReactDefaults, header: el })
+      const stopWave = createHeaderWave({ ...headerWaveDefaults, path })
+
+      return () => {
+        stopReact()
+        stopWave()
+      }
     },
     { scope: header },
   )
+
+  const onHome = route === 'home'
 
   return (
     <>
       <header className="header" ref={header}>
         <div className="container header__inner">
-          <a className="brand" href="#hero" onClick={(e) => scrollToSection(e, '#hero')}>
+          <a
+            className="brand"
+            href="#/"
+            onClick={(e) => {
+              if (!onHome) return
+              scrollToSection(e, '#hero')
+            }}
+          >
             <img className="brand__mark" src={logoMark} alt={site.brand} />
           </a>
 
-          <nav className="nav">
-            {site.nav.map((item) => (
+          {onHome ? (
+            <nav className="nav">
+              {site.nav.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => scrollToSection(e, item.href)}
+                >
+                  {t(item.label)}
+                </a>
+              ))}
+            </nav>
+          ) : (
+            <nav className="nav">
               <a
-                key={item.href}
-                href={item.href}
-                onClick={(e) => scrollToSection(e, item.href)}
+                href="#/"
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigate('home')
+                }}
               >
-                {t(item.label)}
+                {lang === 'pt' ? 'In\u00edcio' : 'Startseite'}
               </a>
-            ))}
-          </nav>
+            </nav>
+          )}
 
           <div className="langswitch">
             {LANGS.map((code) => (
@@ -84,9 +125,20 @@ export function App() {
             ))}
           </div>
         </div>
+
+        {/* A borda que ondula. preserveAspectRatio="none" deixa o viewBox de
+            1200 unidades esticar ate a largura real sem deformar a altura. */}
+        <svg
+          className="header__wave"
+          viewBox="0 0 1200 28"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path ref={wave} d="M0 0 H1200 V14 H0 Z" />
+        </svg>
       </header>
 
-      <main>{site.sections.map((section) => renderSection(section))}</main>
+      <main>{onHome ? <Home /> : <Catalog />}</main>
 
       <footer className="footer container">
         {/* loading="lazy" importa aqui: o logotipo por extenso e um SVG
@@ -100,7 +152,7 @@ export function App() {
         />
 
         <span>
-          {new Date().getFullYear()} {site.brand} · {site.cities.join(' · ')}
+          {new Date().getFullYear()} {site.brand} \u00b7 {site.cities.join(' \u00b7 ')}
         </span>
       </footer>
     </>

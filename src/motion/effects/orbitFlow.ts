@@ -1,103 +1,77 @@
-import { gsap, runtime } from '../gsap'
+import { gsap } from '../gsap'
 
 export type OrbitFlowConfig = {
   section: HTMLElement
-  ring: SVGGeometryElement
   nodes: HTMLElement[]
+  /** Deslocamento vertical de entrada, em pixels. */
+  rise: number
+  scaleFrom: number
+  /** Duracao de cada passo, em fracao do trecho rolado. */
+  step: number
+  /** Sobreposicao entre um passo e o seguinte. */
+  overlap: number
+  end: string
 }
 
+export const orbitFlowDefaults = {
+  rise: 34,
+  scaleFrom: 0.86,
+  step: 1,
+  overlap: 0.25,
+  end: '+=150%',
+} as const satisfies Omit<OrbitFlowConfig, 'section' | 'nodes'>
+
 /**
- * Fluxo de aquisicao desenhado como ciclo.
+ * Os passos surgindo em ordem sobre uma elipse imaginaria.
  *
- * O traco do circulo cresce por strokeDashoffset em vez do DrawSVGPlugin.
- * Para uma forma que nos mesmos desenhamos, sem transformacoes aninhadas nem
- * unidades relativas, o plugin nao resolve nada que o dash nao resolva -- e
- * evita carregar mais um plugin no bundle.
+ * A versao anterior desenhava um anel e revelava os quatro nos praticamente
+ * juntos: a figura era bonita e ilegivel, porque nada dizia por onde comecar.
+ * Aqui o traco sumiu e a ordem virou tempo -- cada passo aparece no seu turno,
+ * e o circulo se forma na cabeca de quem le em vez de estar desenhado na tela.
  *
- * A tecnica: definimos o tracejado com exatamente o comprimento total da
- * linha e empurramos o deslocamento para o mesmo valor. A linha existe, mas
- * comeca inteiramente fora de vista. Levar o deslocamento a zero a revela
- * progressivamente.
- *
- * No celular o pin e desligado. Fixar uma segunda secao numa tela baixa
- * transforma a pagina num tunel do qual o usuario nao sabe quando vai sair.
+ * A elipse nao existe no DOM. As posicoes vem de seno e cosseno calculados no
+ * componente, o que permite trocar quatro passos por cinco sem mexer aqui.
  */
 export function createOrbitFlow(cfg: OrbitFlowConfig): () => void {
-  const length = cfg.ring.getTotalLength()
-  gsap.set(cfg.ring, { strokeDasharray: length, strokeDashoffset: length })
+  if (cfg.nodes.length === 0) return () => {}
 
-  const mm = gsap.matchMedia()
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduced) {
+    gsap.set(cfg.nodes, { opacity: 1, y: 0, scale: 1 })
+    return () => {}
+  }
 
-  mm.add(
-    {
-      isDesktop: '(min-width: 900px) and (prefers-reduced-motion: no-preference)',
-      isMobile: '(max-width: 899px) and (prefers-reduced-motion: no-preference)',
-      isReduced: '(prefers-reduced-motion: reduce)',
+  // Fixar so faz sentido onde a elipse cabe. No celular os nos viram uma lista
+  // empilhada pelo CSS, e prender a tela ali seria prisao, nao ritmo.
+  const wide = window.matchMedia('(min-width: 900px)').matches
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: cfg.section,
+      start: wide ? 'top top' : 'top 78%',
+      end: wide ? cfg.end : 'bottom 60%',
+      scrub: 1,
+      pin: wide,
+      anticipatePin: wide ? 1 : 0,
     },
-    (ctx) => {
-      const conditions = (ctx.conditions ?? {}) as Record<string, boolean | undefined>
+  })
 
-      if (conditions['isReduced'] === true) {
-        gsap.set(cfg.ring, { strokeDashoffset: 0 })
-        gsap.set(cfg.nodes, { autoAlpha: 1, scale: 1 })
-        return
-      }
-
-      gsap.set(cfg.nodes, { autoAlpha: 0, scale: 0.72 })
-
-      if (conditions['isMobile'] === true) {
-        const trigger = { trigger: cfg.section, start: 'top 70%', once: true }
-
-        gsap.to(cfg.ring, {
-          strokeDashoffset: 0,
-          duration: 1.4,
-          ease: 'none',
-          scrollTrigger: trigger,
-        })
-
-        gsap.to(cfg.nodes, {
-          autoAlpha: 1,
-          scale: 1,
-          duration: 0.5,
-          stagger: 0.16,
-          ease: 'back.out(1.7)',
-          scrollTrigger: trigger,
-        })
-
-        return
-      }
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: cfg.section,
-          start: 'top top',
-          end: '+=170%',
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          markers: runtime.debug,
-        },
-      })
-
-      // Com scrub ativo estes numeros sao fracoes da distancia rolada, nao
-      // segundos. O traco leva o percurso inteiro; cada no acende quando o
-      // traco chega ate ele.
-      tl.to(cfg.ring, {
-        strokeDashoffset: 0,
+  cfg.nodes.forEach((node, index) => {
+    tl.from(
+      node,
+      {
+        opacity: 0,
+        y: cfg.rise,
+        scale: cfg.scaleFrom,
         ease: 'none',
-        duration: cfg.nodes.length,
-      })
+        duration: cfg.step,
+      },
+      index * (cfg.step - cfg.overlap),
+    )
+  })
 
-      cfg.nodes.forEach((node, index) => {
-        tl.to(
-          node,
-          { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(1.7)' },
-          index * 0.95,
-        )
-      })
-    },
-  )
-
-  return () => mm.revert()
+  return () => {
+    tl.scrollTrigger?.kill()
+    tl.kill()
+  }
 }

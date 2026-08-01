@@ -7,10 +7,13 @@ export type { HeroIntroConfig } from './heroIntro'
 export { createHeaderReact, headerReactDefaults } from './headerReact'
 export type { HeaderReactConfig } from './headerReact'
 
+export { createHeaderWave, headerWaveDefaults } from './headerWave'
+export type { HeaderWaveConfig } from './headerWave'
+
 export { createSlideIn, slideInDefaults } from './slideIn'
 export type { SlideInConfig } from './slideIn'
 
-export { createOrbitFlow } from './orbitFlow'
+export { createOrbitFlow, orbitFlowDefaults } from './orbitFlow'
 export type { OrbitFlowConfig } from './orbitFlow'
 
 export { createCardTilt, cardTiltDefaults } from './cardTilt'

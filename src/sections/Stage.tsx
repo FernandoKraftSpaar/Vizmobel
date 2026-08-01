@@ -9,15 +9,14 @@ import type { StageSection } from '../content/types'
 /**
  * O objeto conquista o palco.
  *
- * A entrada e discreta de proposito. Fazer o cartao crescer de 42% ate o
- * tamanho final custava metade da secao so para o movel ficar visivel, e a
- * escala grande demais atrapalhava a leitura da forma. Agora ele entra quase
- * pronto e quem se aproxima e a camera -- movimento que existe no espaco 3D
- * em vez de ser um zoom aplicado por cima da imagem.
+ * A secao e uma grade de duas faixas: o objeto ocupa a faixa elastica e a
+ * legenda a faixa rigida, no rodape. Isso resolve dois problemas de uma vez.
  *
- * A legenda esta fora do fluxo. Enquanto ocupava espaco abaixo do cartao, a
- * grade centralizava o conjunto, e o objeto ficava permanentemente acima do
- * centro optico da tela.
+ * A legenda ja esteve dentro do fluxo, e entao a grade centralizava o conjunto
+ * cartao+legenda -- o objeto ficava permanentemente acima do centro. Depois
+ * ficou absoluta, e passou a atravessar o cartao em telas baixas, porque nada
+ * reservava o espaco dela. Duas faixas dao o centramento da primeira solucao e
+ * a garantia de nao colidir da segunda: sao caixas vizinhas, nao sobrepostas.
  */
 export function Stage({ data }: { data: StageSection }) {
   const root = useRef<HTMLElement>(null)
@@ -35,18 +34,20 @@ export function Stage({ data }: { data: StageSection }) {
       return createScrubPin({
         ...scrubPinDefaults,
         section: el,
-        end: '+=120%',
+        // Trecho fixado mais curto: a versao longa cobrava rolagem demais por
+        // pouca mudanca, e a sensacao era de pagina travada.
+        end: '+=90%',
         build: (tl) => {
-          // Posicoes 0 e 0.35 sao fracoes do trecho rolado, nao segundos.
+          // Posicoes 0 e 0.3 sao fracoes do trecho rolado, nao segundos.
           tl.from(
             card,
-            { scale: 0.92, opacity: 0, ease: 'none', duration: 0.5 },
+            { scale: 0.94, opacity: 0, ease: 'none', duration: 0.45 },
             0,
           )
           tl.from(
             caption,
-            { opacity: 0, y: 20, ease: 'none', duration: 0.4 },
-            0.35,
+            { opacity: 0, y: 18, ease: 'none', duration: 0.35 },
+            0.3,
           )
         },
       })
