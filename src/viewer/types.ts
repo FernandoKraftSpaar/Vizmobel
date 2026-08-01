@@ -50,41 +50,55 @@ export interface ModelViewerElement extends HTMLElement {
  * Atributos booleanos sao tipados como string vazia, nao como boolean, e isso e
  * deliberado. O model-viewer decide por `hasAttribute`. Se passassemos
  * `ar={false}`, o React 19 escreveria `ar="false"` no HTML -- atributo presente,
- * valor irrelevante, AR ligada. Com `'' | undefined` a unica forma de desligar
- * e omitir, que e exatamente o que o DOM entende.
+ * valor irrelevante, AR ligada. Com a string vazia, a unica forma de desligar e
+ * omitir, que e exatamente o que o DOM entende.
  */
 type BooleanAttr = ''
 
-export type ModelViewerAttributes = HTMLAttributes<HTMLElement> & {
-  ref?: Ref<ModelViewerElement>
-  src?: string
-  alt?: string
-  poster?: string
-  ar?: BooleanAttr
-  'ar-modes'?: string
-  'ar-placement'?: 'floor' | 'wall'
-  'camera-controls'?: BooleanAttr
-  'disable-pan'?: BooleanAttr
-  'disable-tap'?: BooleanAttr
-  'interaction-prompt'?: 'auto' | 'none'
-  'touch-action'?: 'pan-y' | 'pan-x' | 'none'
-  loading?: 'auto' | 'lazy' | 'eager'
-  reveal?: 'auto' | 'manual'
-  'tone-mapping'?: 'auto' | 'aces' | 'agx' | 'commerce' | 'neutral'
-  'environment-image'?: string
-  'skybox-image'?: string
-  exposure?: number
-  'shadow-intensity'?: number
-  'shadow-softness'?: number
-  'field-of-view'?: string
-  'min-field-of-view'?: string
-  'max-field-of-view'?: string
-  'camera-orbit'?: string
-  'camera-target'?: string
-  'min-camera-orbit'?: string
-  'max-camera-orbit'?: string
-  'interpolation-decay'?: number
+/**
+ * Torna tudo opcional E explicitamente anulavel.
+ *
+ * Sem o `| undefined`, `exactOptionalPropertyTypes` trata "propriedade ausente"
+ * e "propriedade presente valendo undefined" como tipos diferentes -- e um
+ * espalhamento condicional como `{...(cond ? { poster: url } : {})}` produz o
+ * segundo caso. Fazer isto no mapeamento, e nao linha a linha, evita que o
+ * proximo atributo adicionado reintroduza o mesmo erro.
+ */
+type JsxOptional<T> = { [K in keyof T]?: T[K] | undefined }
+
+type ModelViewerOwnAttributes = {
+  ref: Ref<ModelViewerElement>
+  src: string
+  alt: string
+  poster: string
+  ar: BooleanAttr
+  'ar-modes': string
+  'ar-placement': 'floor' | 'wall'
+  'camera-controls': BooleanAttr
+  'disable-pan': BooleanAttr
+  'disable-tap': BooleanAttr
+  'interaction-prompt': 'auto' | 'none'
+  'touch-action': 'pan-y' | 'pan-x' | 'none'
+  loading: 'auto' | 'lazy' | 'eager'
+  reveal: 'auto' | 'manual'
+  'tone-mapping': 'auto' | 'aces' | 'agx' | 'commerce' | 'neutral'
+  'environment-image': string
+  'skybox-image': string
+  exposure: number
+  'shadow-intensity': number
+  'shadow-softness': number
+  'field-of-view': string
+  'min-field-of-view': string
+  'max-field-of-view': string
+  'camera-orbit': string
+  'camera-target': string
+  'min-camera-orbit': string
+  'max-camera-orbit': string
+  'interpolation-decay': number
 }
+
+export type ModelViewerAttributes = HTMLAttributes<HTMLElement> &
+  JsxOptional<ModelViewerOwnAttributes>
 
 declare module 'react' {
   namespace JSX {
