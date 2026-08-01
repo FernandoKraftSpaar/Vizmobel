@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissoes minimas exigidas pelo deploy-pages via OIDC.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Dois pushes seguidos nao devem publicar fora de ordem. O mais novo cancela
+# o anterior que ainda estiver em andamento.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # Sem cache: a chave do setup-node vem do package-lock.json, que
+          # este repositorio ainda nao possui.
+
+      - name: Instalar dependencias
+        run: npm install
+
+      # O script build e "tsc --noEmit && vite build": se houver erro de tipo,
+      # o job para aqui e nada e publicado.
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar artefato
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
