@@ -56,7 +56,8 @@ export interface ModelViewerElement extends HTMLElement {
   readonly updateComplete: Promise<boolean>
   /**
    * Falso ate a deteccao de suporte terminar, e nao existe evento avisando
-   * quando ela termina. Por isso o valor e sondado, nao lido uma vez so.
+   * quando ela termina. Nunca use este valor para ESCONDER o botao: use apenas
+   * para explicar uma tentativa que ja aconteceu.
    */
   canActivateAR: boolean
   createTexture(uri: string): Promise<MvTexture>
@@ -86,6 +87,20 @@ type JsxOptional<T> = { [K in keyof T]?: T[K] | undefined }
 type ModelViewerOwnAttributes = {
   ref: Ref<ModelViewerElement>
   src: string
+  /**
+   * Arquivo USDZ para o Quick Look da Apple.
+   *
+   * O iPhone nao abre GLB em AR. Nunca abriu. A unica porta de realidade
+   * aumentada no iOS e o Quick Look, componente do sistema que le USDZ e mais
+   * nada. O model-viewer tenta contornar isso convertendo o GLB em USDZ dentro
+   * do proprio aparelho, mas essa conversao depende de deteccao interna e de
+   * memoria disponivel -- quando ela nao acontece, o botao simplesmente nao
+   * funciona e nada explica o motivo.
+   *
+   * Com este atributo apontando para um .usdz real, a duvida acaba: o iOS abre
+   * o arquivo pronto.
+   */
+  'ios-src': string
   alt: string
   poster: string
   ar: BooleanAttr

@@ -9,22 +9,12 @@ type Phase = 'loading' | 'ready' | 'failed'
 /**
  * O aparelho tem tela sensivel ao toque?
  *
- * Esta pergunta substituiu `canActivateAR` como criterio para MOSTRAR o botao,
- * e a troca corrige um defeito serio da versao anterior.
- *
- * `canActivateAR` e assincrono por natureza: so vira verdadeiro depois que o
- * GLB termina de carregar E a deteccao de suporte resolve (no WebXR, uma
- * promessa do navegador). A versao anterior sondava esse valor por 3,2s
- * contados a partir do carregamento do SCRIPT -- e o modelo, com quase 2 MB,
- * costuma chegar depois disso num celular. A sondagem expirava, concluia "sem
- * AR" e nunca mais revia a decisao. O aparelho tinha AR; a interface e que
- * havia desistido cedo.
- *
- * A classe do aparelho, ao contrario, e conhecida no primeiro quadro e nao
- * muda. `pointer: coarse` responde "o dedo e o instrumento aqui", e
- * `maxTouchPoints` cobre o caso do Firefox no Android, que ja reportou
- * `pointer: fine` por engano. O suporte real continua sendo consultado -- mas
- * no clique, quando a resposta ja existe.
+ * Esta pergunta substituiu `canActivateAR` como criterio para MOSTRAR o botao.
+ * `canActivateAR` e assincrono: so vira verdadeiro depois que o GLB carrega e a
+ * deteccao de suporte resolve. Qualquer prazo que a gente invente para esperar
+ * por ele expira antes num aparelho lento, e a interface conclui "sem AR" de
+ * forma permanente. A classe do aparelho, ao contrario, e conhecida no primeiro
+ * quadro e nao muda.
  */
 function detectHandheld(): boolean {
   if (typeof window === 'undefined') return false
@@ -32,6 +22,53 @@ function detectHandheld(): boolean {
     window.matchMedia('(pointer: coarse)').matches ||
     window.navigator.maxTouchPoints > 0
   )
+}
+
+/**
+ * O Safari aceita abrir o Quick Look?
+ *
+ * `relList.supports('ar')` e literalmente o sinalizador que o model-viewer
+ * consulta para decidir se existe AR no iOS. Se ele for falso, nao ha atributo,
+ * arquivo ou configuracao que faca a camera abrir naquele navegador -- e saber
+ * disso muda o diagnostico de "nosso codigo esta errado" para "este navegador
+ * nao tem a funcao".
+ */
+function supportsQuickLook(): boolean {
+  if (typeof document === 'undefined') return false
+  try {
+    const anchor = document.createElement('a')
+    return anchor.relList.supports('ar')
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Os fatos que decidem se a AR abre, em texto que cabe num print de tela.
+ *
+ * Existe porque depurar AR a distancia sem isto e adivinhacao: o navegador esta
+ * na mao de outra pessoa, o console nao esta acessivel e cada rodada de palpite
+ * custa um build. Cinco linhas na tela resolvem em uma rodada.
+ */
+function diagnostics(el: ModelViewerElement | null): Array<[string, string]> {
+  const nav = window.navigator
+  const ua = nav.userAgent
+  const platform =
+    /iPhone|iPad|iPod/.test(ua) || (/Mac/.test(ua) && nav.maxTouchPoints > 1)
+      ? 'iOS'
+      : /Android/.test(ua)
+        ? 'Android'
+        : 'outro'
+
+  return [
+    ['plataforma', platform],
+    ['navegador', /CriOS|FxiOS|EdgiOS/.test(ua) ? 'nao-Safari no iOS' : 'ok'],
+    ['protocolo', window.location.protocol],
+    ['quick-look', supportsQuickLook() ? 'sim' : 'nao'],
+    ['webxr', 'xr' in nav ? 'sim' : 'nao'],
+    ['modelo carregado', el?.loaded ? 'sim' : 'nao'],
+    ['canActivateAR', el?.canActivateAR ? 'sim' : 'nao'],
+  ]
 }
 
 const copy = {
@@ -53,9 +90,10 @@ const copy = {
     de: 'Die Kamera konnte nicht ge\u00f6ffnet werden. Falls Sie die Berechtigung abgelehnt haben, tippen Sie erneut und erlauben Sie den Zugriff.',
   },
   unsupported: {
-    pt: 'Este aparelho n\u00e3o oferece realidade aumentada no navegador. No Android, atualize os Servi\u00e7os do Google Play para RA; no iPhone, use o Safari.',
-    de: 'Dieses Ger\u00e4t bietet keine Augmented Reality im Browser. Aktualisieren Sie unter Android die Google Play-Dienste f\u00fcr AR; nutzen Sie auf dem iPhone Safari.',
+    pt: 'Este navegador n\u00e3o abriu a realidade aumentada. Toque em detalhes t\u00e9cnicos e me envie o que aparece.',
+    de: 'Dieser Browser hat AR nicht ge\u00f6ffnet. Tippen Sie auf technische Details und senden Sie mir die Anzeige.',
   },
+  diag: { pt: 'detalhes t\u00e9cnicos', de: 'technische Details' },
   deskTitle: {
     pt: 'A c\u00e2mera est\u00e1 no celular',
     de: 'Die Kamera ist am Smartphone',
@@ -96,10 +134,8 @@ export function ArStage({ config }: { config: ModelConfig }) {
   const [modelLoaded, setModelLoaded] = useState(false)
   const [status, setStatus] = useState<ArStatus>('not-presenting')
   const [unsupported, setUnsupported] = useState(false)
+  const [report, setReport] = useState<Array<[string, string]>>([])
 
-  // Avaliado uma vez, no primeiro render. A classe do aparelho nao muda no meio
-  // da visita, e o inicializador preguicoso evita rodar matchMedia a cada
-  // renderizacao.
   const [handheld] = useState(detectHandheld)
 
   // Sem IntersectionObserver aqui, ao contrario do palco da home: nesta pagina
@@ -155,24 +191,30 @@ export function ArStage({ config }: { config: ModelConfig }) {
     if (!el) return
 
     /*
-     * A consulta ao suporte acontece AQUI, e nao na montagem.
+     * TENTA PRIMEIRO, JULGA DEPOIS.
      *
-     * Neste instante o modelo ja carregou e a deteccao do navegador ja
-     * resolveu, entao `canActivateAR` finalmente diz a verdade. Perguntar antes
-     * era perguntar cedo demais.
+     * A versao anterior consultava `canActivateAR` ANTES e desistia se fosse
+     * falso. Isso transformava um sinalizador que pode estar atrasado num veto
+     * definitivo. Agora a chamada acontece de qualquer jeito: se houver
+     * qualquer modo de AR disponivel, a camera abre; se nao houver, o
+     * model-viewer nao faz nada e o julgamento vem na linha seguinte.
+     *
+     * A ordem tambem protege o gesto: `activateAR` precisa nascer do toque, e
+     * qualquer espera antes dela faria o navegador recusar a camera em
+     * silencio.
      */
-    if (!el.canActivateAR) {
-      setUnsupported(true)
-      return
-    }
-
-    // activateAR precisa nascer de um gesto do usuario. Este clique e o gesto,
-    // entao nada de await antes da chamada -- esperar por qualquer promessa
-    // aqui perderia a permissao e o navegador recusaria a camera em silencio.
     void el.activateAR().catch((error: unknown) => {
       console.error(error)
       setStatus('failed')
     })
+
+    if (el.canActivateAR) {
+      setUnsupported(false)
+      setReport([])
+    } else {
+      setUnsupported(true)
+      setReport(diagnostics(el))
+    }
   }, [])
 
   const message = unsupported
@@ -215,6 +257,7 @@ export function ArStage({ config }: { config: ModelConfig }) {
             camera-target={config.cameraTarget}
             min-camera-orbit={config.minCameraOrbit}
             max-camera-orbit={config.maxCameraOrbit}
+            {...(config.usdzUrl ? { 'ios-src': config.usdzUrl } : {})}
             {...(config.environmentUrl
               ? { 'environment-image': config.environmentUrl }
               : {})}
@@ -266,6 +309,20 @@ export function ArStage({ config }: { config: ModelConfig }) {
             >
               {message}
             </p>
+
+            {report.length > 0 && (
+              <details className="demo__diag">
+                <summary>{t(copy.diag)}</summary>
+                <dl className="demo__diag-list">
+                  {report.map(([key, value]) => (
+                    <div key={key} className="demo__diag-row">
+                      <dt>{key}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            )}
           </>
         ) : (
           <div className="demo__fallback">

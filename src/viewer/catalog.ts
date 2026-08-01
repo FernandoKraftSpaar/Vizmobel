@@ -43,6 +43,16 @@ export type FinishGroup = {
 export type ModelConfig = {
   id: string
   glbUrl: string
+  /**
+   * Mesmo movel, formato da Apple. Nulo deixa o model-viewer tentar converter
+   * o GLB sozinho dentro do aparelho -- caminho que funciona as vezes e falha
+   * sem aviso nas outras.
+   *
+   * Nao e duplicidade de conteudo: e a mesma peca em dois formatos, porque o
+   * Android e o iOS nunca concordaram sobre qual arquivo abre a camera. Todo
+   * catalogo de AR serio carrega os dois, e o banco vai ter as duas colunas.
+   */
+  usdzUrl: string | null
   posterUrl: string | null
   /** HDR do ambiente. Nulo usa a iluminacao neutra padrao. */
   environmentUrl: string | null
@@ -66,6 +76,12 @@ export type ModelConfig = {
 export const poltrona: ModelConfig = {
   id: 'poltrona-nordica',
   glbUrl: `${base}models/poltrona.glb`,
+  /*
+   * Aguardando o arquivo. Assim que `public/models/poltrona.usdz` existir,
+   * troque por `${base}models/poltrona.usdz` e a AR do iPhone para de depender
+   * da conversao automatica.
+   */
+  usdzUrl: null,
   posterUrl: null,
   environmentUrl: null,
   alt: {
