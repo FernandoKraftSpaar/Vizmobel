@@ -1,8 +1,12 @@
 import { gsap, runtime } from '../gsap'
 
+// Mesmo motivo de textLines.ts: derivamos o tipo em vez de escrever
+// gsap.core.Timeline, que depende do namespace global nao sombreado.
+export type MotionTimeline = ReturnType<typeof gsap.timeline>
+
 export type ScrubPinConfig = {
   section: HTMLElement
-  build: (tl: gsap.core.Timeline) => void
+  build: (tl: MotionTimeline) => void
   pin: boolean
   scrub: number | boolean
   start: string

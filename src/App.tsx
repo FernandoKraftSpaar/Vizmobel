@@ -51,7 +51,7 @@ export function App() {
         <span>
           {new Date().getFullYear()} {site.brand}
         </span>
-        <span>Caxias do Sul \u00b7 Berlin</span>
+        <span>Caxias do Sul · Berlin</span>
       </footer>
     </>
   )

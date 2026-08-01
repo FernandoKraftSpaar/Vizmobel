@@ -11,6 +11,6 @@ export { createCounter, counterDefaults } from './counter'
 export type { CounterConfig } from './counter'
 
 export { createScrubPin, scrubPinDefaults } from './scrubPin'
-export type { ScrubPinConfig } from './scrubPin'
+export type { ScrubPinConfig, MotionTimeline } from './scrubPin'
 
 export { setupResponsiveMotion } from './responsive'

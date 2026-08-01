@@ -1,6 +1,11 @@
 import { gsap, SplitText, runtime } from '../gsap'
 import { motion } from '../tokens'
 
+// Derivar o tipo da propria funcao evita escrever gsap.core.Tween. O import
+// default cria um binding local chamado `gsap` que sombreia o namespace
+// global de mesmo nome, e a anotacao nem sempre resolve.
+type Tween = ReturnType<typeof gsap.from>
+
 export type TextLinesConfig = {
   target: HTMLElement
   yPercent: number
@@ -30,7 +35,7 @@ export const textLinesDefaults = {
  * fonte de fallback fica errada depois que a fonte real chega.
  */
 export function createTextLines(cfg: TextLinesConfig): () => void {
-  let tween: gsap.core.Tween | undefined
+  let tween: Tween | undefined
 
   const split = SplitText.create(cfg.target, {
     type: 'lines',
