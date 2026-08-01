@@ -1,0 +1,544 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Quem pediu menos movimento nao deveria receber scroll animado tampouco. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  /* A pagina anima no eixo X em alguns pontos; sem isto o celular ganha
+     uma barra de rolagem horizontal fantasma. */
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+
+.section--soft {
+  background: var(--bg-soft);
+}
+
+.section--dark {
+  background: var(--grad);
+  color: #fff;
+}
+
+.eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.section--dark .eyebrow {
+  color: var(--gold);
+}
+
+.heading {
+  font-size: clamp(28px, 3.6vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  text-wrap: balance;
+  max-width: 22ch;
+}
+
+.lead {
+  color: var(--text-soft);
+  max-width: 62ch;
+  margin-top: 18px;
+}
+
+.section--dark .lead {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ---------------------------------------------------------------- header */
+
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  backdrop-filter: saturate(180%) blur(12px);
+  background: rgba(255, 255, 255, 0.78);
+  border-bottom: 1px solid var(--border);
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 62px;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 18px;
+  color: var(--navy);
+}
+
+.nav {
+  display: none;
+  gap: 22px;
+  margin-inline-start: auto;
+}
+
+@media (min-width: 900px) {
+  .nav {
+    display: flex;
+  }
+}
+
+.nav a {
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.nav a:hover {
+  color: var(--navy);
+}
+
+.langswitch {
+  margin-inline-start: auto;
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .langswitch {
+    margin-inline-start: 0;
+  }
+}
+
+.langswitch button {
+  border: 0;
+  background: transparent;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+
+.langswitch button[aria-pressed='true'] {
+  background: var(--navy);
+  color: #fff;
+}
+
+/* ------------------------------------------------------------ rollbutton */
+
+.roll {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0 26px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  background: var(--navy);
+  color: #fff;
+  transition: background 0.25s;
+}
+
+.roll:hover {
+  background: var(--navy-soft);
+}
+
+.roll--lg {
+  height: 56px;
+  padding: 0 32px;
+  font-size: 17px;
+}
+
+.roll--gold {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.roll--gold:hover {
+  background: var(--gold-soft);
+}
+
+/* O recorte que faz o rolamento existir. Sem overflow hidden as duas copias
+   do rotulo apareceriam empilhadas na tela. */
+.roll__viewport {
+  display: block;
+  overflow: hidden;
+  height: 1.4em;
+}
+
+.roll__inner {
+  display: block;
+  will-change: transform;
+}
+
+.roll__line {
+  display: block;
+  height: 1.4em;
+  line-height: 1.4em;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- hero */
+
+.section--hero {
+  padding-top: calc(62px + var(--section-y));
+  background: var(--bg);
+}
+
+.hero__grid {
+  display: grid;
+  gap: clamp(40px, 6vw, 72px);
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .hero__grid {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+}
+
+.hero__title {
+  font-size: clamp(36px, 5.4vw, 62px);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.hero__sub {
+  color: var(--text-soft);
+  max-width: 52ch;
+  margin-block: 24px 32px;
+}
+
+/* ----------------------------------------------------------- tilt card */
+
+.tiltcard {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  background: var(--grad);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  will-change: transform;
+}
+
+.tiltcard__glow {
+  position: absolute;
+  width: 74%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(234, 179, 8, 0.36) 0%,
+    rgba(234, 179, 8, 0) 68%
+  );
+  will-change: transform;
+}
+
+.tiltcard__shape {
+  position: relative;
+  width: 52%;
+  aspect-ratio: 1;
+  border-radius: 22px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.03)
+  );
+  backdrop-filter: blur(2px);
+  will-change: transform;
+}
+
+.tiltcard__meta {
+  position: absolute;
+  left: 22px;
+  bottom: 20px;
+  display: grid;
+  gap: 2px;
+  color: #fff;
+  will-change: transform;
+}
+
+.tiltcard__meta strong {
+  font-size: 16px;
+}
+
+.tiltcard__meta span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ---------------------------------------------------------- numbers */
+
+.metrics {
+  display: grid;
+  gap: 28px;
+  margin-top: 48px;
+}
+
+@media (min-width: 760px) {
+  .metrics {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+}
+
+.metric__value {
+  font-size: clamp(44px, 6vw, 68px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--gold);
+  line-height: 1;
+  display: block;
+  /* Sem tabular-nums a largura de cada digito muda durante a contagem e o
+     numero inteiro treme na horizontal. */
+  font-variant-numeric: tabular-nums;
+}
+
+.metric__label {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+  max-width: 26ch;
+}
+
+/* --------------------------------------------------------- services */
+
+.cards {
+  display: grid;
+  gap: 22px;
+  margin-top: 52px;
+}
+
+@media (min-width: 720px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 30px 28px 32px;
+  box-shadow: var(--shadow);
+  will-change: transform;
+}
+
+.card__index {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--gold-deep);
+}
+
+.card__title {
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin-block: 12px 10px;
+}
+
+.card__body {
+  color: var(--text-soft);
+  font-size: 15.5px;
+}
+
+/* ------------------------------------------------------------ about */
+
+.prose {
+  display: grid;
+  gap: 20px;
+  max-width: 68ch;
+  margin-top: 34px;
+  font-size: 18px;
+  color: var(--text-soft);
+}
+
+/* ---------------------------------------------------------- process */
+
+.process {
+  min-height: 100vh;
+  display: grid;
+  align-content: center;
+}
+
+.process__stage {
+  position: relative;
+  margin-top: 44px;
+  min-height: 240px;
+}
+
+.step {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.step__n {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+}
+
+.step__title {
+  font-size: clamp(26px, 3.4vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.step__body {
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 54ch;
+}
+
+/* ------------------------------------------------------------- team */
+
+.team {
+  display: grid;
+  gap: 22px;
+  margin-top: 48px;
+}
+
+@media (min-width: 640px) {
+  .team {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 980px) {
+  .team {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.member {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px 22px;
+  background: #fff;
+}
+
+.member__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--grad);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.member__name {
+  margin-top: 18px;
+  font-weight: 650;
+  font-size: 18px;
+}
+
+.member__role {
+  color: var(--text-soft);
+  font-size: 14.5px;
+}
+
+.member__place {
+  color: var(--text-faint);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* -------------------------------------------------------------- cta */
+
+.cta {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 26px;
+}
+
+.cta__title {
+  font-size: clamp(30px, 4.4vw, 50px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.cta__note {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+/* ----------------------------------------------------------- footer */
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-block: 30px;
+  color: var(--text-faint);
+  font-size: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+/* Regra de seguranca: se o JavaScript falhar ou o usuario pedir movimento
+   reduzido, nada pode ficar invisivel. */
+[data-reduced-motion='true'] [data-animate] {
+  opacity: 1 !important;
+  transform: none !important;
+}
