@@ -1,49 +1,90 @@
 import type { SiteContent } from './types'
 
-// Todo o texto do site vive neste arquivo e em nenhum outro. Nenhum componente
-// contem string visivel ao usuario. Trocar o conteudo nunca exige abrir um
-// arquivo de secao.
+// Todo o texto do site vive neste arquivo e em nenhum outro.
 //
-// O texto abaixo e provisorio e serve para dar volume real as animacoes --
-// paragrafos curtos demais escondem defeitos que so aparecem com tres linhas.
+// A pagina segue uma narrativa deliberada: tese -> objeto -> perguntas ->
+// diagnostico -> virada -> mecanica -> pessoas -> acao. Cada secao so faz
+// sentido depois da anterior, e e por isso que as animacoes sao guiadas por
+// rolagem: elas impoem o ritmo da leitura.
 export const site: SiteContent = {
   brand: 'VizM\u00f6bel',
 
   nav: [
-    { id: 'hero', label: { pt: 'In\u00edcio', de: 'Start' } },
-    { id: 'numbers', label: { pt: 'N\u00fameros', de: 'Zahlen' } },
-    { id: 'services', label: { pt: 'Servi\u00e7os', de: 'Leistungen' } },
-    { id: 'about', label: { pt: 'Quem somos', de: '\u00dcber uns' } },
-    { id: 'process', label: { pt: 'Processo', de: 'Ablauf' } },
-    { id: 'team', label: { pt: 'Equipe', de: 'Team' } },
+    { href: '#stage', label: { pt: 'O produto', de: 'Das Produkt' } },
+    { href: '#answer', label: { pt: 'O problema', de: 'Das Problem' } },
+    { href: '#solution', label: { pt: 'A solu\u00e7\u00e3o', de: 'Die L\u00f6sung' } },
+    { href: '#flow', label: { pt: 'Como funciona', de: 'Ablauf' } },
+    { href: '#team', label: { pt: 'Equipe', de: 'Team' } },
   ],
 
   sections: [
     {
       kind: 'hero',
-      eyebrow: {
-        pt: 'Realidade aumentada para m\u00f3veis',
-        de: 'Augmented Reality f\u00fcr M\u00f6bel',
-      },
       headline: {
         pt: 'Seu cliente v\u00ea o m\u00f3vel na pr\u00f3pria sala, em escala real.',
         de: 'Ihr Kunde sieht das M\u00f6belst\u00fcck im eigenen Wohnzimmer, ma\u00dfstabsgetreu.',
       },
       sub: {
-        pt: 'Sem cadastro, sem download, sem aplicativo. Um link abre a c\u00e2mera e o produto aparece no ch\u00e3o da casa dele, com sombra e propor\u00e7\u00e3o corretas.',
-        de: 'Ohne Registrierung, ohne Download, ohne App. Ein Link \u00f6ffnet die Kamera, und das Produkt steht im Raum \u2014 mit korrektem Schatten und Ma\u00dfstab.',
+        pt: 'Realidade aumentada direto no navegador. Sem app, sem cadastro, sem download.',
+        de: 'Augmented Reality direkt im Browser. Keine App, keine Registrierung, kein Download.',
       },
       cta: { pt: 'Ver demonstra\u00e7\u00e3o', de: 'Demo ansehen' },
-      cardTitle: { pt: 'Poltrona N\u00f3rdica', de: 'Sessel Nordic' },
-      cardMeta: {
+      cue: { pt: 'role para ver', de: 'weiter scrollen' },
+    },
+
+    {
+      kind: 'stage',
+      caption: {
+        pt: '\u00c9 este objeto que vai parar na casa do seu cliente.',
+        de: 'Dieses Objekt landet im Zuhause Ihres Kunden.',
+      },
+      modelName: { pt: 'Poltrona N\u00f3rdica', de: 'Sessel Nordic' },
+      modelMeta: {
         pt: 'Modelo 3D \u00b7 1,8 MB \u00b7 pronto para AR',
         de: '3D-Modell \u00b7 1,8 MB \u00b7 AR-bereit',
       },
     },
 
     {
-      kind: 'numbers',
-      heading: { pt: 'O problema em n\u00fameros', de: 'Das Problem in Zahlen' },
+      kind: 'questions',
+      questions: [
+        {
+          id: 'q1',
+          side: 'left',
+          text: {
+            pt: 'Parece que falta alguma coisa na experi\u00eancia do seu cliente online?',
+            de: 'Fehlt im Online-Erlebnis Ihrer Kunden etwas Entscheidendes?',
+          },
+        },
+        {
+          id: 'q2',
+          side: 'right',
+          text: {
+            pt: 'Devolu\u00e7\u00f5es porque o m\u00f3vel n\u00e3o ficou bem no ambiente dele?',
+            de: 'R\u00fccksendungen, weil das M\u00f6belst\u00fcck im Raum doch nicht passte?',
+          },
+        },
+        {
+          id: 'q3',
+          side: 'left',
+          text: {
+            pt: 'Carrinho abandonado bem na hora de decidir o tamanho?',
+            de: 'Kaufabbruch genau dann, wenn es um die Ma\u00dfe geht?',
+          },
+        },
+      ],
+    },
+
+    {
+      kind: 'answer',
+      statement: {
+        pt: 'O cliente n\u00e3o consegue visualizar o m\u00f3vel na casa dele.',
+        de: 'Der Kunde kann sich das M\u00f6belst\u00fcck in seinem Zuhause nicht vorstellen.',
+      },
+      followUp: {
+        pt: 'Ent\u00e3o deixa de comprar. Ou compra, recebe e devolve.',
+        de: 'Also kauft er nicht. Oder er kauft, erh\u00e4lt die Lieferung und schickt sie zur\u00fcck.',
+      },
       metrics: [
         {
           value: 20,
@@ -65,60 +106,93 @@ export const site: SiteContent = {
             de: 'der Marge verschlingt die Retourenlogistik',
           },
         },
+      ],
+    },
+
+    {
+      kind: 'solution',
+      headline: {
+        pt: 'Mas n\u00f3s levamos o seu produto at\u00e9 a casa do cliente.',
+        de: 'Wir bringen Ihr Produkt zu ihm nach Hause.',
+      },
+      attributes: [
         {
-          value: 91.5,
-          decimals: 1,
-          prefix: 'R$ ',
-          suffix: ' bi',
-          label: {
-            pt: 'movimentados pelo setor moveleiro brasileiro por ano',
-            de: 'Jahresumsatz der brasilianischen M\u00f6belbranche',
+          id: 'a1',
+          side: 'left',
+          title: {
+            pt: 'Ele v\u00ea como o m\u00f3vel combina com o ambiente dele',
+            de: 'Er sieht, wie das M\u00f6belst\u00fcck zu seinem Raum passt',
+          },
+          body: {
+            pt: 'Digitalizamos seu cat\u00e1logo em modelos leves, e o cliente troca cor, tecido e madeira em tempo real, sem sair da cena e sem precisar imaginar nada.',
+            de: 'Wir digitalisieren Ihren Katalog in leichte Modelle, und der Kunde wechselt Farbe, Stoff und Holz in Echtzeit \u2014 ohne die Szene zu verlassen und ohne sich etwas vorstellen zu m\u00fcssen.',
+          },
+        },
+        {
+          id: 'a2',
+          side: 'right',
+          title: {
+            pt: 'Acaba a d\u00favida de tamanho, e com ela a devolu\u00e7\u00e3o',
+            de: 'Die Ma\u00dffrage verschwindet \u2014 und mit ihr die R\u00fccksendung',
+          },
+          body: {
+            pt: 'O m\u00f3vel encosta na parede certa e cabe no v\u00e3o certo, em escala real, com sombra no piso. A principal causa de arrependimento deixa de existir antes do pedido.',
+            de: 'Das M\u00f6belst\u00fcck steht an der richtigen Wand und passt in die richtige Nische, ma\u00dfstabsgetreu und mit Schatten. Der h\u00e4ufigste Grund f\u00fcr Reue verschwindet vor der Bestellung.',
+          },
+        },
+        {
+          id: 'a3',
+          side: 'left',
+          title: {
+            pt: 'Sua marca passa a ser a que levou a loja at\u00e9 a sala dele',
+            de: 'Ihre Marke bringt den Laden in sein Wohnzimmer',
+          },
+          body: {
+            pt: 'O visualizador roda dentro do seu e-commerce, no seu dom\u00ednio, sem p\u00e1gina intermedi\u00e1ria e sem aplicativo para o cliente baixar. O cr\u00e9dito da experi\u00eancia \u00e9 seu.',
+            de: 'Der Viewer l\u00e4uft in Ihrem Shop, unter Ihrer Domain, ohne Zwischenseite und ohne App zum Herunterladen. Das Erlebnis zahlt auf Ihre Marke ein.',
           },
         },
       ],
     },
 
     {
-      kind: 'services',
-      heading: { pt: 'O que fazemos', de: 'Was wir tun' },
+      kind: 'flow',
+      heading: { pt: 'Como funciona', de: 'So funktioniert es' },
       intro: {
-        pt: 'Quatro entregas que cabem no fluxo que a sua f\u00e1brica j\u00e1 tem, sem trocar sistema e sem treinar equipe.',
-        de: 'Vier Leistungen, die sich in Ihren bestehenden Ablauf einf\u00fcgen \u2014 ohne Systemwechsel, ohne Schulung.',
+        pt: 'Quatro passos que fecham um ciclo: o cliente sai da d\u00favida e volta para a compra.',
+        de: 'Vier Schritte, die einen Kreis schlie\u00dfen: vom Zweifel zur\u00fcck zum Kauf.',
       },
-      services: [
+      steps: [
         {
-          id: 'scan',
-          title: { pt: 'Digitaliza\u00e7\u00e3o 3D', de: '3D-Digitalisierung' },
+          id: 's1',
+          title: { pt: 'Escolher o produto', de: 'Produkt w\u00e4hlen' },
           body: {
-            pt: 'Transformamos seu cat\u00e1logo em modelos leves o bastante para carregar em rede m\u00f3vel, modelados a partir do projeto original e n\u00e3o da foto.',
-            de: 'Wir verwandeln Ihren Katalog in Modelle, die auch \u00fcber Mobilfunk sofort laden \u2014 modelliert aus der Originalkonstruktion, nicht aus dem Foto.',
+            pt: 'No seu cat\u00e1logo, onde hoje ficam as fotos.',
+            de: 'In Ihrem Katalog, wo heute die Fotos stehen.',
           },
         },
         {
-          id: 'viewer',
-          title: { pt: 'Visualizador AR', de: 'AR-Viewer' },
+          id: 's2',
+          title: { pt: 'Abrir o link', de: 'Link \u00f6ffnen' },
           body: {
-            pt: 'Um link por produto. O cliente abre no navegador do celular e o m\u00f3vel aparece em escala real, encostando na parede certa.',
-            de: 'Ein Link pro Produkt. Der Kunde \u00f6ffnet ihn im Handy-Browser, und das M\u00f6belst\u00fcck erscheint ma\u00dfstabsgetreu an der richtigen Wand.',
+            pt: 'Sem cadastro e sem download.',
+            de: 'Ohne Registrierung, ohne Download.',
           },
         },
         {
-          id: 'config',
-          title: {
-            pt: 'Configurador de acabamentos',
-            de: 'Ausstattungs-Konfigurator',
-          },
+          id: 's3',
+          title: { pt: 'Ajustar o acabamento', de: 'Ausf\u00fchrung w\u00e4hlen' },
           body: {
-            pt: 'Cor, tecido e madeira trocados em tempo real, sem recarregar a cena e sem perder o posicionamento j\u00e1 feito.',
-            de: 'Farbe, Stoff und Holz in Echtzeit wechseln \u2014 ohne Neuladen der Szene und ohne die Platzierung zu verlieren.',
+            pt: 'Cor, tecido e madeira na hora.',
+            de: 'Farbe, Stoff und Holz in Echtzeit.',
           },
         },
         {
-          id: 'embed',
-          title: { pt: 'Embed no seu site', de: 'Embed f\u00fcr Ihre Website' },
+          id: 's4',
+          title: { pt: 'Ver em escala real', de: 'Ma\u00dfstabsgetreu sehen' },
           body: {
-            pt: 'O mesmo motor roda dentro do seu e-commerce, no seu dom\u00ednio, sem depender de uma p\u00e1gina intermedi\u00e1ria nossa.',
-            de: 'Dieselbe Engine l\u00e4uft in Ihrem Shop, unter Ihrer Domain, ohne Zwischenseite von uns.',
+            pt: 'Na sala dele, com sombra e medida.',
+            de: 'In seinem Raum, mit Schatten und Ma\u00df.',
           },
         },
       ],
@@ -139,41 +213,6 @@ export const site: SiteContent = {
         {
           pt: 'Trabalhamos com quem fabrica, n\u00e3o com quem apenas revende. A diferen\u00e7a aparece no detalhe: a junta encaixa, a textura acompanha a fibra da madeira e a medida bate com a ficha t\u00e9cnica.',
           de: 'Wir arbeiten mit Herstellern, nicht mit Wiederverk\u00e4ufern. Der Unterschied liegt im Detail: Die Verbindung sitzt, die Textur folgt der Holzmaserung, und das Ma\u00df stimmt mit dem Datenblatt \u00fcberein.',
-        },
-      ],
-    },
-
-    {
-      kind: 'process',
-      heading: { pt: 'Como funciona', de: 'So funktioniert es' },
-      steps: [
-        {
-          title: { pt: 'Escolha o produto', de: 'Produkt ausw\u00e4hlen' },
-          body: {
-            pt: 'No cat\u00e1logo do site ou direto na p\u00e1gina do e-commerce, no mesmo lugar onde hoje ficam as fotos.',
-            de: 'Im Katalog oder direkt auf der Produktseite im Shop \u2014 genau dort, wo heute die Fotos stehen.',
-          },
-        },
-        {
-          title: { pt: 'Abra o link', de: 'Link \u00f6ffnen' },
-          body: {
-            pt: 'Nenhum cadastro e nenhum download. O navegador do celular j\u00e1 basta, em Android e em iPhone.',
-            de: 'Keine Registrierung, kein Download. Der Handy-Browser gen\u00fcgt, unter Android wie unter iOS.',
-          },
-        },
-        {
-          title: { pt: 'Escolha o acabamento', de: 'Ausf\u00fchrung w\u00e4hlen' },
-          body: {
-            pt: 'Cor e tecido trocados na hora. A permiss\u00e3o de c\u00e2mera \u00e9 pedida uma \u00fanica vez, e nada sai do aparelho.',
-            de: 'Farbe und Stoff sofort wechseln. Die Kamerafreigabe wird nur einmal erfragt, und nichts verl\u00e4sst das Ger\u00e4t.',
-          },
-        },
-        {
-          title: { pt: 'Veja em escala real', de: 'Ma\u00dfstabsgetreu sehen' },
-          body: {
-            pt: 'O m\u00f3vel encosta na parede, cabe no v\u00e3o e projeta sombra no piso. A d\u00favida sobre tamanho acaba ali.',
-            de: 'Das M\u00f6belst\u00fcck steht an der Wand, passt in die Nische und wirft Schatten auf den Boden. Die Gr\u00f6\u00dfenfrage ist damit beantwortet.',
-          },
         },
       ],
     },

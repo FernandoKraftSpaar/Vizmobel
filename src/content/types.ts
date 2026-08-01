@@ -1,10 +1,12 @@
 export const LANGS = ['pt', 'de'] as const
 export type Lang = (typeof LANGS)[number]
 
-// A peca central do modelo de conteudo. Como Localized e um Record fechado
-// sobre Lang, esquecer a traducao alema de um unico texto quebra o build.
-// Traducao faltando nunca chega em producao como string vazia.
+// Como Localized e um Record fechado sobre Lang, esquecer a traducao alema de
+// um unico texto quebra o build.
 export type Localized = Record<Lang, string>
+
+/** Lado por onde o elemento entra na tela. */
+export type Side = 'left' | 'right'
 
 export type Metric = {
   value: number
@@ -14,36 +16,44 @@ export type Metric = {
   label: Localized
 }
 
-export type Service = { id: string; title: Localized; body: Localized }
-export type Step = { title: Localized; body: Localized }
-export type Member = {
-  name: string
-  initials: string
-  place: string
-  role: Localized
-}
-
 export type HeroSection = {
   kind: 'hero'
-  eyebrow: Localized
   headline: Localized
   sub: Localized
   cta: Localized
-  cardTitle: Localized
-  cardMeta: Localized
+  cue: Localized
 }
 
-export type NumbersSection = {
-  kind: 'numbers'
-  heading: Localized
+export type StageSection = {
+  kind: 'stage'
+  caption: Localized
+  modelName: Localized
+  modelMeta: Localized
+}
+
+export type QuestionsSection = {
+  kind: 'questions'
+  questions: { id: string; side: Side; text: Localized }[]
+}
+
+export type AnswerSection = {
+  kind: 'answer'
+  statement: Localized
+  followUp: Localized
   metrics: Metric[]
 }
 
-export type ServicesSection = {
-  kind: 'services'
+export type SolutionSection = {
+  kind: 'solution'
+  headline: Localized
+  attributes: { id: string; side: Side; title: Localized; body: Localized }[]
+}
+
+export type FlowSection = {
+  kind: 'flow'
   heading: Localized
   intro: Localized
-  services: Service[]
+  steps: { id: string; title: Localized; body: Localized }[]
 }
 
 export type AboutSection = {
@@ -52,16 +62,15 @@ export type AboutSection = {
   paragraphs: Localized[]
 }
 
-export type ProcessSection = {
-  kind: 'process'
-  heading: Localized
-  steps: Step[]
-}
-
 export type TeamSection = {
   kind: 'team'
   heading: Localized
-  members: Member[]
+  members: {
+    name: string
+    initials: string
+    place: string
+    role: Localized
+  }[]
 }
 
 export type CtaSection = {
@@ -73,16 +82,18 @@ export type CtaSection = {
 
 export type Section =
   | HeroSection
-  | NumbersSection
-  | ServicesSection
+  | StageSection
+  | QuestionsSection
+  | AnswerSection
+  | SolutionSection
+  | FlowSection
   | AboutSection
-  | ProcessSection
   | TeamSection
   | CtaSection
 
 export type SectionKind = Section['kind']
 
-export type NavItem = { id: SectionKind; label: Localized }
+export type NavItem = { href: string; label: Localized }
 
 export type SiteContent = {
   brand: string
